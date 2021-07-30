@@ -1,4 +1,5 @@
 #include<iostream>
+#include<string>
 
 struct ELF_Header
 {
@@ -47,3 +48,9 @@ void show_elf_header(ELF_Header* elf_header);
 void show_program_header(Program_Header* program_header);
 
 void show_section_header(char *string_table, Section_Header* section_header);
+
+ELF_Header *get_elf_header(std::string file_name);
+
+Program_Header *get_program_header(std::string file_name, int offset, int num);
+
+Section_Header *get_section_header(std::string file_name, int offset, int num);

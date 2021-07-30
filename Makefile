@@ -1,4 +1,6 @@
 all:
+	g++ -c readelf.cpp -o readelf.o
+readelf:
 	g++ readelf.cpp -o readelf
 clean:
-	rm readelf
+	rm -f readelf readelf.o
