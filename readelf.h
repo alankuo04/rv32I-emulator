@@ -43,14 +43,29 @@ struct Section_Header{
     uint32_t    sh_entsize;
 };
 
+struct Text_section{
+    uint32_t *text_section;
+    int size;
+};
+
 void show_elf_header(ELF_Header* elf_header);
 
 void show_program_header(Program_Header* program_header);
 
 void show_section_header(char *string_table, Section_Header* section_header);
 
+void show_programe_header_table(ELF_Header *elf_header, Program_Header *program_header);
+
+void show_section_header_table(ELF_Header *elf_header, char* string_table, Section_Header *section_header);
+
+void show_text_section(Text_section *text);
+
 ELF_Header *get_elf_header(std::string file_name);
 
-Program_Header *get_program_header(std::string file_name, int offset, int num);
+Program_Header *get_program_header(std::string file_name, ELF_Header *elf_header);
 
-Section_Header *get_section_header(std::string file_name, int offset, int num);
+Section_Header *get_section_header(std::string file_name, ELF_Header *elf_header);
+
+char *get_string_table(std::string file_name, ELF_Header *elf_header);
+
+Text_section *get_text_section(std::string file_name);

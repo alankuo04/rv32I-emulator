@@ -655,60 +655,9 @@ void show_section_header(char *string_table, Section_Header* section_header){
     cout<<endl;
 }
 
-ELF_Header *get_elf_header(string file_name){
-    fstream file;
-    file.open(file_name, ios::in);
-    ELF_Header *elf_header = new ELF_Header;
-    char buf[1024];
-    file.read(buf, sizeof(ELF_Header));
-    memcpy(elf_header, buf, sizeof(ELF_Header));
-    file.close();
-    return elf_header;
-}
-
-Program_Header *get_program_header(string file_name, int offset, int num){
-    fstream file;
-    file.open(file_name, ios::in);
-    Program_Header *program_header = new Program_Header[num];
-    char buf[1024];
-    file.seekg(offset, file.beg);
-    for(int i=0;i<num;i++){
-        file.read(buf, sizeof(Program_Header));
-        memcpy((program_header+i), buf, sizeof(Program_Header));
-    }
-    file.close();
-    return program_header;
-}
-
-Section_Header *get_section_header(string file_name, int offset, int num){
-    fstream file;
-    file.open(file_name, ios::in);
-    Section_Header *section_header = new Section_Header[num];
-    char buf[1024];
-    file.seekg(offset, file.beg);
-    for(int i=0;i<num;i++){
-        file.read(buf, sizeof(Section_Header));
-        memcpy((section_header+i), buf, sizeof(Section_Header));
-    }
-    file.close();
-    return section_header;
-}
-
-int main(int argc, char** argv){
-    fstream file;
-    file.open(argv[1], ios::in);
-    ELF_Header *elf_header = new ELF_Header;
-    Program_Header *program_header = new Program_Header;
-    Section_Header *section_header = new Section_Header;
-    char buf[1024];
-    /*file.read(buf, sizeof(ELF_Header));
-    memcpy(elf_header, buf, sizeof(ELF_Header));*/
-    elf_header = get_elf_header(argv[1]);
-    show_elf_header(elf_header);
-    
+void show_programe_header_table(ELF_Header *elf_header, Program_Header *program_header){
     cout<<"There are "<<elf_header->e_phnum<<" program headers"<<endl;
-    cout<<"Entry point:";
-    cout<<elf_header->e_phoff<<endl;
+    cout<<"Entry point:"<<elf_header->e_phoff<<endl;
     cout<<left<<setw(8)<<"Type";
     cout<<left<<setw(8)<<"Flag";
     cout<<left<<setw(8)<<"Offset";
@@ -718,25 +667,14 @@ int main(int argc, char** argv){
     cout<<left<<setw(8)<<"Memsz";
     cout<<left<<setw(8)<<"Align";
     cout<<endl;
-    
-    program_header = get_program_header(argv[1], elf_header->e_phoff, elf_header->e_phnum);
+
     for(int i=0;i<elf_header->e_phnum;i++){
-        /*file.read(buf, sizeof(Program_Header));
-        memcpy(program_header, buf, sizeof(Program_Header));
-        */
         show_program_header((program_header+i));    
     }
+}
 
-    file.seekg(elf_header->e_shoff+elf_header->e_shstrndx*elf_header->e_shentsize, file.beg);
-    file.read(buf, sizeof(Section_Header));
-    memcpy(section_header, buf, sizeof(Section_Header));
-    file.seekg(section_header->sh_offset, file.beg);
-    
-    char string_table[section_header->sh_size];
-    file.read(string_table, section_header->sh_size);
-
+void show_section_header_table(ELF_Header *elf_header, char *string_table, Section_Header *section_header){
     cout<<"There are "<<elf_header->e_shnum<<" section headers"<<endl;
-    file.seekg(elf_header->e_shoff, file.beg);
     cout<<left<<setw(20)<<"Name";
     cout<<left<<setw(15)<<"Type";
     cout<<left<<setw(5)<<"Flag";
@@ -748,29 +686,117 @@ int main(int argc, char** argv){
     cout<<left<<setw(6)<<"Align";
     cout<<left<<setw(8)<<"EntSize";
     cout<<endl;
-    
-    uint32_t *text_section;
-    int text_size;
 
-    section_header = get_section_header(argv[1], elf_header->e_shoff, elf_header->e_shnum);
     for(int i=0;i<elf_header->e_shnum;i++){
-        /*file.read(buf, sizeof(Section_Header));
-        memcpy(section_header, buf, sizeof(Section_Header));*/
+        show_section_header(string_table, section_header+i);    
+    }
+}
 
+void show_text_section(Text_section *text){
+    for(int i=0;i<text->size;i++){
+        printf("%08X\n", text->text_section[i]);
+    }
+}
+
+ELF_Header *get_elf_header(string file_name){
+    fstream file;
+    file.open(file_name, ios::in);
+    ELF_Header *elf_header = new ELF_Header;
+    char buf[1024];
+    file.read(buf, sizeof(ELF_Header));
+    memcpy(elf_header, buf, sizeof(ELF_Header));
+    file.close();
+    return elf_header;
+}
+
+Program_Header *get_program_header(string file_name, ELF_Header *elf_header){
+    fstream file;
+    file.open(file_name, ios::in);
+    Program_Header *program_header = new Program_Header[elf_header->e_phnum];
+    char buf[1024];
+    file.seekg(elf_header->e_phoff, file.beg);
+    for(int i=0;i<elf_header->e_phnum;i++){
+        file.read(buf, sizeof(Program_Header));
+        memcpy((program_header+i), buf, sizeof(Program_Header));
+    }
+    file.close();
+    return program_header;
+}
+
+Section_Header *get_section_header(string file_name, ELF_Header *elf_header){
+    fstream file;
+    file.open(file_name, ios::in);
+    Section_Header *section_header = new Section_Header[elf_header->e_shnum];
+    char buf[1024];
+    file.seekg(elf_header->e_shoff, file.beg);
+    for(int i=0;i<elf_header->e_shnum;i++){
+        file.read(buf, sizeof(Section_Header));
+        memcpy((section_header+i), buf, sizeof(Section_Header));
+    }
+    file.close();
+    return section_header;
+}
+
+char *get_string_table(string file_name, ELF_Header *elf_header){
+    fstream file;
+    file.open(file_name, ios::in);
+    Section_Header *section_header = new Section_Header;
+    char buf[1024];
+    
+    file.seekg(elf_header->e_shoff+elf_header->e_shstrndx*elf_header->e_shentsize, file.beg);
+    file.read(buf, sizeof(Section_Header));
+    memcpy(section_header, buf, sizeof(Section_Header));
+    file.seekg(section_header->sh_offset, file.beg);
+
+    char *string_table = new char[section_header->sh_size];
+    file.read(string_table, section_header->sh_size);
+    return string_table;
+}
+
+Text_section *get_text_section(string file_name){
+    fstream file;
+    file.open(file_name, ios::in);
+    ELF_Header *elf_header = get_elf_header(file_name);
+    char *string_table = get_string_table(file_name, elf_header);
+    Section_Header *section_header = get_section_header(file_name, elf_header);
+    Text_section *text = new Text_section;
+    for(int i=0;i<elf_header->e_shnum;i++){
         stringstream ss(string_table+(section_header+i)->sh_name);
         string name;
         ss>>name;
-        if(name==".text"){
-            int temp = file.tellg();
+        if(name == ".text"){
             file.seekg((section_header+i)->sh_offset, file.beg);
-            text_section = new uint32_t[(section_header+i)->sh_size/sizeof(uint32_t)];
-            text_size = (section_header+i)->sh_size/sizeof(uint32_t);
-            file.read((char*)(text_section), (section_header+i)->sh_size);
-            file.seekg(temp, file.beg);
+            text->text_section = new uint32_t[(section_header+i)->sh_size/sizeof(uint32_t)];
+            text->size = (section_header+i)->sh_size/sizeof(uint32_t);
+            file.read((char*)text->text_section, (section_header+i)->sh_size);
+            break;
         }
-        show_section_header(string_table, section_header+i);    
     }
-    for(int i=0;i<text_size;i++){
-        printf("%08X\n",text_section[i]);
-    }
+    file.close();
+    return text;
+}
+
+int main(int argc, char** argv){
+
+    ELF_Header *elf_header;
+    Program_Header *program_header;
+    Section_Header *section_header;
+
+    elf_header = get_elf_header(argv[1]);
+    if(elf_header->e_ident[1]!='E' && elf_header->e_ident[2]!='L' && elf_header->e_ident[3]!='F')
+        return 0;
+    show_elf_header(elf_header);
+    
+    program_header = get_program_header(argv[1], elf_header);
+    show_programe_header_table(elf_header, program_header);
+
+    char *string_table = get_string_table(argv[1], elf_header);
+    section_header = get_section_header(argv[1], elf_header);
+    show_section_header_table(elf_header, string_table, section_header);
+
+    Text_section *text;
+
+    text = get_text_section(argv[1]);
+    show_text_section(text);
+    
 }
