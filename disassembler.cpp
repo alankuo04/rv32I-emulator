@@ -3,6 +3,11 @@
 #include"elf_function.h"
 using namespace std;
 
+string register_list[] = {"zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0", 
+                        "s1", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", 
+                        "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", 
+                        "t3", "t4", "t5", "t6"};
+
 union Instruction
 {
     uint32_t instruction;
@@ -60,9 +65,9 @@ union Instruction
 
 struct Assembly{
     string name;
-    uint32_t r1;
-    uint32_t r2;
-    uint32_t amount;
+    string r1;
+    string r2;
+    string amount;
 };
 
 char get_instruction_type(Instruction instruction){
@@ -97,21 +102,21 @@ Assembly get_R_type(Instruction instruction){
         switch (instruction.R.funct3)
         {
         case 0:
-            return {"ADD", instruction.R.rd, instruction.R.rs1, instruction.R.rs2};
+            return {"ADD", register_list[instruction.R.rd], register_list[instruction.R.rs1], register_list[instruction.R.rs2]};
         case 1:
-            return {"SLL", instruction.R.rd, instruction.R.rs1, instruction.R.rs2};
+            return {"SLL", register_list[instruction.R.rd], register_list[instruction.R.rs1], register_list[instruction.R.rs2]};
         case 2:
-            return {"SLT", instruction.R.rd, instruction.R.rs1, instruction.R.rs2};
+            return {"SLT", register_list[instruction.R.rd], register_list[instruction.R.rs1], register_list[instruction.R.rs2]};
         case 3:
-            return {"SLTU", instruction.R.rd, instruction.R.rs1, instruction.R.rs2};
+            return {"SLTU", register_list[instruction.R.rd], register_list[instruction.R.rs1], register_list[instruction.R.rs2]};
         case 4:
-            return {"XOR", instruction.R.rd, instruction.R.rs1, instruction.R.rs2};
+            return {"XOR", register_list[instruction.R.rd], register_list[instruction.R.rs1], register_list[instruction.R.rs2]};
         case 5:
-            return {"SRL", instruction.R.rd, instruction.R.rs1, instruction.R.rs2};
+            return {"SRL", register_list[instruction.R.rd], register_list[instruction.R.rs1], register_list[instruction.R.rs2]};
         case 6:
-            return {"OR", instruction.R.rd, instruction.R.rs1, instruction.R.rs2};
+            return {"OR", register_list[instruction.R.rd], register_list[instruction.R.rs1], register_list[instruction.R.rs2]};
         case 7:
-            return {"AND", instruction.R.rd, instruction.R.rs1, instruction.R.rs2};
+            return {"AND", register_list[instruction.R.rd], register_list[instruction.R.rs1], register_list[instruction.R.rs2]};
         default:
             break;
         }
@@ -120,9 +125,9 @@ Assembly get_R_type(Instruction instruction){
         switch (instruction.R.funct3)
         {
         case 0:
-            return {"SUB", instruction.R.rd, instruction.R.rs1, instruction.R.rs2};
+            return {"SUB", register_list[instruction.R.rd], register_list[instruction.R.rs1], register_list[instruction.R.rs2]};
         case 6:
-            return {"SRA", instruction.R.rd, instruction.R.rs1, instruction.R.rs2};        
+            return {"SRA", register_list[instruction.R.rd], register_list[instruction.R.rs1], register_list[instruction.R.rs2]};        
         default:
             break;
         }
@@ -140,15 +145,15 @@ Assembly get_I_type(Instruction instruction){
         switch (instruction.I.funct3)
         {
         case 0:
-            return {"LB", instruction.I.rd, imm, instruction.I.rs1};
+            return {"LB", register_list[instruction.I.rd], to_string(int(imm)), register_list[instruction.I.rs1]};
         case 1:
-            return {"LH", instruction.I.rd, imm, instruction.I.rs1};
+            return {"LH", register_list[instruction.I.rd], to_string(int(imm)), register_list[instruction.I.rs1]};
         case 2:
-            return {"LW", instruction.I.rd, imm, instruction.I.rs1};
+            return {"LW", register_list[instruction.I.rd], to_string(int(imm)), register_list[instruction.I.rs1]};
         case 4:
-            return {"LBU", instruction.I.rd, imm, instruction.I.rs1};
+            return {"LBU", register_list[instruction.I.rd], to_string(int(imm)), register_list[instruction.I.rs1]};
         case 5:
-            return {"LHU", instruction.I.rd, imm, instruction.I.rs1};
+            return {"LHU", register_list[instruction.I.rd], to_string(int(imm)), register_list[instruction.I.rs1]};
         default:
             break;
         }
@@ -157,35 +162,35 @@ Assembly get_I_type(Instruction instruction){
         switch (instruction.I.funct3)
         {
         case 0:
-            return {"ADDI", instruction.I.rd, instruction.I.rs1, imm};
+            return {"ADDI", register_list[instruction.I.rd], register_list[instruction.I.rs1], to_string(int(imm))};
         case 2:
-            return {"SLTI", instruction.I.rd, instruction.I.rs1, imm};
+            return {"SLTI", register_list[instruction.I.rd], register_list[instruction.I.rs1], to_string(int(imm))};
         case 3:
-            return {"SLTIU", instruction.I.rd, instruction.I.rs1, imm};
+            return {"SLTIU", register_list[instruction.I.rd], register_list[instruction.I.rs1], to_string(int(imm))};
         case 4:
-            return {"XORI", instruction.I.rd, instruction.I.rs1, imm};
+            return {"XORI", register_list[instruction.I.rd], register_list[instruction.I.rs1], to_string(int(imm))};
         case 6:
-            return {"ORI", instruction.I.rd, instruction.I.rs1, imm};
+            return {"ORI", register_list[instruction.I.rd], register_list[instruction.I.rs1], to_string(int(imm))};
         case 7:
-            return {"ANDI", instruction.I.rd, instruction.I.rs1, imm};
+            return {"ANDI", register_list[instruction.I.rd], register_list[instruction.I.rs1], to_string(int(imm))};
         case 1:
-            return {"SLLI", instruction.I.rd, instruction.I.rs1, imm};
+            return {"SLLI", register_list[instruction.I.rd], register_list[instruction.I.rs1], to_string(int(imm))};
         case 5:
             if(instruction.I.imm11_0>>5 == 0)
-                return {"SRLI", instruction.I.rd, instruction.I.rs1, imm};
+                return {"SRLI", register_list[instruction.I.rd], register_list[instruction.I.rs1], to_string(int(imm))};
             else
-                return {"SRAI", instruction.I.rd, instruction.I.rs1, imm};
+                return {"SRAI", register_list[instruction.I.rd], register_list[instruction.I.rs1], to_string(int(imm))};
         default:
             break;
         }
         break;
     case 103:
-        return {"JALR", instruction.I.rd, imm, instruction.I.rs1};
+        return {"JALR", register_list[instruction.I.rd], to_string(int(imm)), register_list[instruction.I.rs1]};
     case 115:
         if(instruction.I.imm11_0 == 0)
-            return {"ECALL", 0, 0, 0};
+            return {"ECALL", "0", "0", "0"};
         else
-            return {"EBREAK", 0 ,0 ,0};
+            return {"EBREAK", "0", "0", "0"};
     default:
         break;
     }
@@ -198,11 +203,11 @@ Assembly get_S_type(Instruction instruction){
     switch (instruction.S.funct3)
     {
     case 0:
-        return {"SB", instruction.S.rs2, imm, instruction.S.rs1};
+        return {"SB", register_list[instruction.S.rs2], to_string(int(imm)), register_list[instruction.S.rs1]};
     case 1:
-        return {"SH", instruction.S.rs2, imm, instruction.S.rs1};
+        return {"SH", register_list[instruction.S.rs2], to_string(int(imm)), register_list[instruction.S.rs1]};
     case 2:
-        return {"SW", instruction.S.rs2, imm, instruction.S.rs1};
+        return {"SW", register_list[instruction.S.rs2], to_string(int(imm)), register_list[instruction.S.rs1]};
     default:
         break;
     }
@@ -213,17 +218,17 @@ Assembly get_B_type(Instruction instruction){
     switch (instruction.B.funct3)
     {
     case 0:
-        return {"BEQ", instruction.B.rs1, instruction.B.rs2, imm};
+        return {"BEQ", register_list[instruction.B.rs1], register_list[instruction.B.rs2], to_string(int(imm))};
     case 1:
-        return {"BNE", instruction.B.rs1, instruction.B.rs2, imm};
+        return {"BNE", register_list[instruction.B.rs1], register_list[instruction.B.rs2], to_string(int(imm))};
     case 4:
-        return {"BLT", instruction.B.rs1, instruction.B.rs2, imm};
+        return {"BLT", register_list[instruction.B.rs1], register_list[instruction.B.rs2], to_string(int(imm))};
     case 5:
-        return {"BGE", instruction.B.rs1, instruction.B.rs2, imm};
+        return {"BGE", register_list[instruction.B.rs1], register_list[instruction.B.rs2], to_string(int(imm))};
     case 6:
-        return {"BLTU", instruction.B.rs1, instruction.B.rs2, imm};
+        return {"BLTU", register_list[instruction.B.rs1], register_list[instruction.B.rs2], to_string(int(imm))};
     case 7:
-        return {"BGEU", instruction.B.rs1, instruction.B.rs2, imm};
+        return {"BGEU", register_list[instruction.B.rs1], register_list[instruction.B.rs2], to_string(int(imm))};
     default:
         break;
     }
@@ -233,9 +238,9 @@ Assembly get_U_type(Instruction instruction){
     switch (instruction.U.opcode)
     {
     case 55:
-        return {"LUI", instruction.U.rd, instruction.U.imm31_12};
+        return {"LUI", register_list[instruction.U.rd], to_string(instruction.U.imm31_12)};
     case 23:
-        return {"AUIPC", instruction.U.rd, instruction.U.imm31_12};
+        return {"AUIPC", register_list[instruction.U.rd], to_string(instruction.U.imm31_12)};
     default:
         break;
     }
@@ -243,7 +248,7 @@ Assembly get_U_type(Instruction instruction){
 
 Assembly get_J_type(Instruction instruction){
     uint32_t imm = (instruction.J.imm20<<20)+(instruction.J.imm19_12<<12)+(instruction.J.imm11<<11)+instruction.J.imm10_1;
-    return {"JAL", instruction.J.rd, imm};
+    return {"JAL", register_list[instruction.J.rd], to_string(int(imm))};
 }
 
 int main(int argc, char **argv){
@@ -276,7 +281,7 @@ int main(int argc, char **argv){
         default:
             break;
         }
-        cout<<assembly.name<<" "<<assembly.r1<<" "<<int32_t(assembly.r2)<<" "<<int32_t(assembly.amount)<<""<<endl;
+        cout<<assembly.name<<" "<<assembly.r1<<" "<<assembly.r2<<" "<<assembly.amount<<endl;
     }
 
 }
