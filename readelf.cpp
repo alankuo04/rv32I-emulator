@@ -20,7 +20,7 @@ int main(int argc, char** argv){
 
     Text_section *text;
 
-    text = get_text_section(argv[1]);
-    show_text_section(text);
+    //text = get_text_section(argv[1]);
+    //show_text_section(text);
     
 }

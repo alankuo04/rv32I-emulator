@@ -120,7 +120,6 @@ Assembly get_R_type(Instruction instruction){
         default:
             break;
         }
-        break;
     case 32:
         switch (instruction.R.funct3)
         {
@@ -132,7 +131,7 @@ Assembly get_R_type(Instruction instruction){
             break;
         }
     default:
-        break;
+        return {"", "", "", ""};
     }
 }
 
@@ -157,7 +156,6 @@ Assembly get_I_type(Instruction instruction){
         default:
             break;
         }
-        break;
     case 19:
         switch (instruction.I.funct3)
         {
@@ -183,18 +181,16 @@ Assembly get_I_type(Instruction instruction){
         default:
             break;
         }
-        break;
     case 103:
         return {"JALR", register_list[instruction.I.rd], to_string(int(imm)), register_list[instruction.I.rs1]};
     case 115:
         if(instruction.I.imm11_0 == 0)
-            return {"ECALL", "0", "0", "0"};
+            return {"ECALL"};
         else
-            return {"EBREAK", "0", "0", "0"};
+            return {"EBREAK"};
     default:
-        break;
+        return {"", "", "", ""};
     }
-    
 }
 
 Assembly get_S_type(Instruction instruction){
@@ -209,7 +205,7 @@ Assembly get_S_type(Instruction instruction){
     case 2:
         return {"SW", register_list[instruction.S.rs2], to_string(int(imm)), register_list[instruction.S.rs1]};
     default:
-        break;
+        return {"", "", "", ""};
     }
 }
 
@@ -230,7 +226,7 @@ Assembly get_B_type(Instruction instruction){
     case 7:
         return {"BGEU", register_list[instruction.B.rs1], register_list[instruction.B.rs2], to_string(int(imm))};
     default:
-        break;
+        return {"", "", "", ""};
     }
 }
 
@@ -242,12 +238,12 @@ Assembly get_U_type(Instruction instruction){
     case 23:
         return {"AUIPC", register_list[instruction.U.rd], to_string(instruction.U.imm31_12)};
     default:
-        break;
+        return {"", "", "", ""};
     }
 }
 
 Assembly get_J_type(Instruction instruction){
-    uint32_t imm = (instruction.J.imm20<<20)+(instruction.J.imm19_12<<12)+(instruction.J.imm11<<11)+instruction.J.imm10_1;
+    uint32_t imm = (instruction.J.imm20<<20)+(instruction.J.imm19_12<<12)+(instruction.J.imm11<<11)+(instruction.J.imm10_1<<1);
     return {"JAL", register_list[instruction.J.rd], to_string(int(imm))};
 }
 
