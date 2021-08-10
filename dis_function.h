@@ -59,9 +59,9 @@ union Instruction
 
 struct Assembly{
     std::string name;
-    std::string r1;
-    std::string r2;
-    std::string amount;
+    uint32_t r1;
+    uint32_t r2;
+    uint32_t amount;
 };
 
 char get_instruction_type(Instruction instruction);
