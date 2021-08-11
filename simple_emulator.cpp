@@ -20,7 +20,7 @@ int main(int argc, char **argv){
     while(getline(cin, next) && i<text->size){
         //cout<<text->text_section[i]<<endl;
         cout<<i<<endl;
-        Instruction instruction = {text->text_section[i]};
+        Instruction instruction = {text->text_section[pc/4]};
         Assembly assembly;
         switch (get_instruction_type(instruction))
         {
@@ -46,6 +46,7 @@ int main(int argc, char **argv){
                 temp_register[assembly.r1] = (temp_register[assembly.r2]|temp_register[assembly.amount]);
             else if(assembly.name=="AND")
                 temp_register[assembly.r1] = (temp_register[assembly.r2]&temp_register[assembly.amount]);
+            pc+=4;
             break;
         case 'I':
             assembly = get_I_type(instruction);
@@ -79,45 +80,60 @@ int main(int argc, char **argv){
                 temp_register[assembly.r1] = (temp_register[assembly.r2]<<int(assembly.amount));
             else if(assembly.name=="JALR"){
                 pc = (temp_register[assembly.r2]+int(assembly.amount));
-                temp_register[assembly.r1] = pc;
+                temp_register[assembly.r1] = pc+4;
             }
             else if(assembly.name=="ECALL")
                 ;
             else if(assembly.name=="EBREAK")
-                ;
+                ;       
+            if(assembly.name!="JALR")
+                pc+=4;
             break;
         case 'S':
             assembly = get_S_type(instruction);
-            cout<<assembly.name<<" "<<assembly.r1<<" "<<assembly.r2<<" "<<assembly.amount<<endl;
+            /*cout<<assembly.name<<" "<<assembly.r1<<" "<<assembly.r2<<" "<<assembly.amount<<endl;
             cout<<temp_register[assembly.r1]<<endl;
-            cout<<temp_register[assembly.r2]<<endl;
-            if(assembly.name=="SB")
+            cout<<temp_register[assembly.r2]<<endl;*/
+            /*if(assembly.name=="SB")
                 temp_memory[temp_register[assembly.r1]+int(assembly.amount)] = temp_register[assembly.r2];
             else if(assembly.name=="SH")
                 temp_memory[temp_register[assembly.r1]+int(assembly.amount)] = temp_register[assembly.r2];
             else if(assembly.name=="SW")
-                temp_memory[temp_register[assembly.r1]+int(assembly.amount)] = temp_register[assembly.r2];
+                temp_memory[temp_register[assembly.r1]+int(assembly.amount)] = temp_register[assembly.r2];*/        
+            pc+=4;
             break;
         case 'B':
             assembly = get_B_type(instruction);
             if(assembly.name=="BEQ")
                 if(temp_register[assembly.r1]==temp_register[assembly.r2])
                     pc = pc + int(assembly.amount);
+                else
+                    pc += 4;
             else if(assembly.name=="BNE")
                 if(temp_register[assembly.r1]!=temp_register[assembly.r2])
                     pc = pc + int(assembly.amount);
+                else
+                    pc += 4;
             else if(assembly.name=="BLT")
                 if(temp_register[assembly.r1]<temp_register[assembly.r2])
                     pc = pc + int(assembly.amount);
+                else
+                    pc += 4;
             else if(assembly.name=="BGE")
                 if(temp_register[assembly.r1]>=temp_register[assembly.r2])
                     pc = pc + int(assembly.amount);
+                else
+                    pc += 4;
             else if(assembly.name=="BLTU")
                 if(temp_register[assembly.r1]<temp_register[assembly.r2])
                     pc = pc + int(assembly.amount);
+                else
+                    pc += 4;
             else if(assembly.name=="BGEU")
                 if(temp_register[assembly.r1]>=temp_register[assembly.r2])
                     pc = pc + int(assembly.amount);
+                else
+                    pc += 4;
             break;
         case 'U':
             assembly = get_U_type(instruction);
@@ -125,20 +141,21 @@ int main(int argc, char **argv){
                 temp_register[assembly.r1] = (assembly.amount<<12);
             else if(assembly.name=="AUIPC")
                 temp_register[assembly.r1] = (assembly.amount<<12)+pc;
+            pc+=4;
             break;
         case 'J':
             assembly = get_J_type(instruction);
             if(assembly.name=="JAL"){
                 temp_register[assembly.r1] = pc+4;
-                pc = assembly.amount;
+                pc = pc + int(assembly.amount);
             }
             break;
         default:
             break;
         }
+        temp_register[0]=0;
         cout<<assembly.name<<" "<<assembly.r1<<" "<<assembly.r2<<" "<<assembly.amount<<endl;
         cout<<"pc: "<<pc<<endl;
-        pc+=4;
         show_register(temp_register);
         i++;
     }
