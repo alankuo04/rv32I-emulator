@@ -1,5 +1,6 @@
 #include<iostream>
 #include<string>
+#include<cstring>
 #include"elf_function.h"
 #include"dis_function.h"
 using namespace std;
@@ -10,6 +11,12 @@ void show_register(int* temp_register){
     }
 }
 
+void show_memory(char* temp_memory){
+    for(int i=0;i<32;i++){
+        cout<<i<<" "<<temp_memory[i]<<endl;
+    }
+}
+
 int main(int argc, char **argv){
     Text_section *text = get_text_section(argv[1]);
     string next;
@@ -17,7 +24,7 @@ int main(int argc, char **argv){
     int pc=0;
     int temp_register[32]={};
     char temp_memory[2048*2048]={};
-    while(getline(cin, next) && i<text->size){
+    while(getline(cin, next) && pc/4 < text->size){
         //cout<<text->text_section[i]<<endl;
         cout<<i<<endl;
         Instruction instruction = {text->text_section[pc/4]};
@@ -50,16 +57,31 @@ int main(int argc, char **argv){
             break;
         case 'I':
             assembly = get_I_type(instruction);
-            if(assembly.name=="LB")
-                temp_register[assembly.r1] = temp_memory[temp_register[assembly.r2]+int(assembly.amount)];
-            else if(assembly.name=="LH")
-                temp_register[assembly.r1] = temp_memory[temp_register[assembly.r2]+int(assembly.amount)];
-            else if(assembly.name=="LW")
-                temp_register[assembly.r1] = temp_memory[temp_register[assembly.r2]+int(assembly.amount)];
-            else if(assembly.name=="LBU")
-                temp_register[assembly.r1] = temp_memory[temp_register[assembly.r2]+int(assembly.amount)];
-            else if(assembly.name=="LHU")
-                temp_register[assembly.r1] = temp_memory[temp_register[assembly.r2]+int(assembly.amount)];
+            if(assembly.name=="LB"){
+                int8_t byte;
+                memcpy((void*)&byte, (void*)&temp_memory[temp_register[assembly.r2]+int(assembly.amount)], sizeof(int8_t));
+                temp_register[assembly.r1] = (int8_t)byte;
+            }
+            else if(assembly.name=="LH"){
+                int16_t halfword;
+                memcpy((void*)&halfword, (void*)&temp_memory[temp_register[assembly.r2]+int(assembly.amount)], sizeof(int16_t));
+                temp_register[assembly.r1] = (int16_t)halfword;
+            }
+            else if(assembly.name=="LW"){
+                int32_t word;
+                memcpy((void*)&word, (void*)&temp_memory[temp_register[assembly.r2]+int(assembly.amount)], sizeof(int32_t));
+                temp_register[assembly.r1] = (int32_t)word;
+            }
+            else if(assembly.name=="LBU"){
+                uint8_t byte;
+                memcpy((void*)&byte, (void*)&temp_memory[temp_register[assembly.r2]+int(assembly.amount)], sizeof(uint8_t));
+                temp_register[assembly.r1] = (uint8_t)byte;
+            }
+            else if(assembly.name=="LHU"){
+                uint16_t halfword;
+                memcpy((void*)&halfword, (void*)&temp_memory[temp_register[assembly.r2]+int(assembly.amount)], sizeof(uint16_t));
+                temp_register[assembly.r1] = (uint16_t)halfword;
+            }
             else if(assembly.name=="ADDI")
                 temp_register[assembly.r1] = temp_register[assembly.r2]+int(assembly.amount);
             else if(assembly.name=="SLTI")
@@ -94,12 +116,21 @@ int main(int argc, char **argv){
             /*cout<<assembly.name<<" "<<assembly.r1<<" "<<assembly.r2<<" "<<assembly.amount<<endl;
             cout<<temp_register[assembly.r1]<<endl;
             cout<<temp_register[assembly.r2]<<endl;*/
-            /*if(assembly.name=="SB")
-                temp_memory[temp_register[assembly.r1]+int(assembly.amount)] = temp_register[assembly.r2];
-            else if(assembly.name=="SH")
-                temp_memory[temp_register[assembly.r1]+int(assembly.amount)] = temp_register[assembly.r2];
-            else if(assembly.name=="SW")
-                temp_memory[temp_register[assembly.r1]+int(assembly.amount)] = temp_register[assembly.r2];*/        
+            if(assembly.name=="SB"){
+                uint8_t byte;
+                memcpy((void*)&byte, (void*)&temp_register[assembly.r2], sizeof(uint8_t));
+                temp_memory[temp_register[assembly.r1]+int(assembly.amount)] = byte;
+            }
+            else if(assembly.name=="SH"){
+                uint16_t halfword;
+                memcpy((void*)&halfword, (void*)&temp_register[assembly.r2], sizeof(uint16_t));
+                temp_memory[temp_register[assembly.r1]+int(assembly.amount)] = halfword;
+            }
+            else if(assembly.name=="SW"){
+                uint32_t word;
+                memcpy((void*)&word, (void*)&temp_register[assembly.r2], sizeof(uint32_t));
+                temp_memory[temp_register[assembly.r1]+int(assembly.amount)] = word;
+            }
             pc+=4;
             break;
         case 'B':
@@ -154,9 +185,10 @@ int main(int argc, char **argv){
             break;
         }
         temp_register[0]=0;
-        cout<<assembly.name<<" "<<assembly.r1<<" "<<assembly.r2<<" "<<assembly.amount<<endl;
+        cout<<assembly.name<<" "<<register_list[assembly.r1]<<" "<<register_list[assembly.r2]<<" "<<assembly.amount<<endl;
         cout<<"pc: "<<pc<<endl;
         show_register(temp_register);
+        //show_memory(temp_memory);
         i++;
     }
 }
