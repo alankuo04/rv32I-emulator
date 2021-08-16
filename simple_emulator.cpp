@@ -23,7 +23,8 @@ int main(int argc, char **argv){
     int i=0;
     int pc=0;
     int temp_register[32]={};
-    char temp_memory[2048*2048]={};
+    char temp_memory[2048]={};
+    temp_register[2] = 2048;
     while(getline(cin, next) && pc/4 < text->size){
         //cout<<text->text_section[i]<<endl;
         cout<<i<<endl;
