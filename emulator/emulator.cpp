@@ -2,13 +2,14 @@
 #include<fstream>
 #include<string>
 #include<cstring>
+#include<unistd.h>
 #include"my_elf.h"
 using namespace std;
 
 #define MAX_MEMORY_SIZE 536870908
 
 void show_register(int *temp_register){
-    for(int i=0;i<16;i++){
+    for(int i=0;i<32;i++){
         printf("%4s: 0x%08X\n", register_list[i].c_str(), temp_register[i]);
     }
 }
@@ -33,25 +34,28 @@ int main(int argc, char **argv){
             file.read((char*)memory+program_header->p_vaddr, program_header->p_memsz);
         }
     }
-    int entry = elf_header->e_entry/4;
-    /*for(int i=MAX_MEMORY_SIZE;i>=0;i--){
-        printf("%08X\n", memory[i]);
+    /*int entry = elf_header->e_entry/4;
+    for(int i=0x13020;i>=0x13004;i-=4){
+        printf("%08X: %08X\n", i, memory[i/4]);
         //cout<<int(memory[elf_header->e_entry+i])<<endl;
     }*/
-    file.close();
 
+    file.close();
     string next, opcode;
     int pc = elf_header->e_entry;
     int temp_register[32]={};
-    temp_register[2]=MAX_MEMORY_SIZE-1;
+    temp_register[2]=MAX_MEMORY_SIZE*4;
     int signedbit;
     int imm;
-    while(getline(cin, next)){
-    //while(pc<=0x12e54){
+
+    //while(getline(cin, next)){
+    while(pc!=0x12a7c){
+        //usleep(500*1000);
         temp_register[0] = 0;
-        show_register(temp_register);
+        //show_register(temp_register);
         printf("%05X: ", pc);
         printf("%08X ", memory[pc/4]);
+        //printf("%08X %08X %08X %08X ", temp_register[8], temp_register[13], temp_register[14], temp_register[15]);
         Instruction instruction = {memory[pc/4]};
         switch (instruction.general.opcode)
         {
@@ -124,31 +128,31 @@ int main(int argc, char **argv){
             case 0:
                 opcode = "LB";
                 int8_t byte;
-                memcpy(&byte, memory+(temp_register[instruction.I.rs1]+imm), sizeof(int8_t));
+                memcpy(&byte, (int8_t*)(memory)+(temp_register[instruction.I.rs1]+imm)*4/4, sizeof(int8_t));
                 temp_register[instruction.I.rd] = byte;
                 break;
             case 1:
                 opcode = "LH";
                 int16_t half;
-                memcpy(&half, memory+(temp_register[instruction.I.rs1]+imm), sizeof(int16_t));
+                memcpy(&half, (int16_t*)(memory)+(temp_register[instruction.I.rs1]+imm)*2/4, sizeof(int16_t));
                 temp_register[instruction.I.rd] = half;
                 break;
             case 2:
                 opcode = "LW";
                 int32_t word;
-                memcpy(&word, memory+(temp_register[instruction.I.rs1]+imm), sizeof(int32_t));
+                memcpy(&word, memory+(temp_register[instruction.I.rs1]+imm)/4, sizeof(int32_t));
                 temp_register[instruction.I.rd] = word;
                 break;
             case 4:
                 opcode = "LBU";
                 uint8_t u_byte;
-                memcpy(&u_byte, memory+(temp_register[instruction.I.rs1]+imm), sizeof(uint8_t));
+                memcpy(&u_byte, (uint8_t*)(memory)+(temp_register[instruction.I.rs1]+imm)*4/4, sizeof(uint8_t));
                 temp_register[instruction.I.rd] = u_byte;
                 break;
             case 5:
                 opcode = "LHU";
                 uint16_t u_half;
-                memcpy(&u_half, memory+(temp_register[instruction.I.rs1]+imm), sizeof(uint16_t));
+                memcpy(&u_half, (uint16_t*)(memory)+(temp_register[instruction.I.rs1]+imm)*2/4, sizeof(uint16_t));
                 temp_register[instruction.I.rd] = u_half;
                 break;
             default:
@@ -193,7 +197,7 @@ int main(int argc, char **argv){
             case 5:
                 if((instruction.I.imm11_0>>5) == 0){
                     opcode = "SRLI";
-                    temp_register[instruction.I.rd] = (temp_register[instruction.I.rs1]<<(imm&31));
+                    temp_register[instruction.I.rd] = (temp_register[instruction.I.rs1]>>(imm&31));
                 }
                 else{
                     opcode = "SRAI";
@@ -220,6 +224,7 @@ int main(int argc, char **argv){
             else
                 opcode = "EBREAK";
             printf("%s\n", opcode.c_str());
+            show_register(temp_register);
             pc += 4;
             break;
         case 35:    // 0100011 S type
@@ -231,19 +236,19 @@ int main(int argc, char **argv){
                 opcode = "SB";
                 uint8_t byte;
                 memcpy(&byte, (temp_register+instruction.S.rs2), sizeof(uint8_t));
-                memcpy(memory+(temp_register[instruction.S.rs1]+imm), &byte, sizeof(uint8_t));
+                memcpy((uint8_t*)(memory)+(temp_register[instruction.S.rs1]+imm)*4/4, &byte, sizeof(uint8_t));
                 break;
             case 1:
                 opcode = "SH";
                 uint16_t half;
                 memcpy(&half, (temp_register+instruction.S.rs2), sizeof(uint16_t));
-                memcpy(memory+(temp_register[instruction.S.rs1]+imm), &half, sizeof(uint16_t));
+                memcpy((uint16_t*)(memory)+(temp_register[instruction.S.rs1]+imm)*2/4, &half, sizeof(uint16_t));
                 break;
             case 2:
                 opcode = "SW";
                 uint32_t word;
                 memcpy(&word, (temp_register+instruction.S.rs2), sizeof(uint32_t));
-                memcpy(memory+(temp_register[instruction.S.rs1]+imm), &word, sizeof(uint32_t));
+                memcpy(memory+(temp_register[instruction.S.rs1]+imm)/4, &word, sizeof(uint32_t));
                 break;
             default:
                 break;
@@ -333,4 +338,5 @@ int main(int argc, char **argv){
             break;
         }
     }
+    show_register(temp_register);
 }
