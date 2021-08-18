@@ -6,6 +6,7 @@
 #include"my_elf.h"
 using namespace std;
 
+// Max memory size 2GB
 #define MAX_MEMORY_SIZE 536870908
 
 void show_register(int *temp_register){
@@ -47,9 +48,10 @@ int main(int argc, char **argv){
     temp_register[2]=MAX_MEMORY_SIZE*4;
     int signedbit;
     int imm;
+    bool end=false;
 
     //while(getline(cin, next)){
-    while(pc!=0x12a7c){
+    while(!end){
         //usleep(500*1000);
         temp_register[0] = 0;
         //show_register(temp_register);
@@ -158,7 +160,7 @@ int main(int argc, char **argv){
             default:
                 break;
             }
-            printf("%s %s, %s, %d\n", opcode.c_str(), register_list[instruction.I.rd].c_str(), register_list[instruction.I.rs1].c_str(), imm);
+            printf("%s %s, %d(%s)\n", opcode.c_str(), register_list[instruction.I.rd].c_str(), imm, register_list[instruction.I.rs1].c_str());
             pc += 4;
             break;
         case 19:    // 0010011 I type
@@ -219,12 +221,19 @@ int main(int argc, char **argv){
             printf("%s %s, %s, %d\n", opcode.c_str(), register_list[instruction.I.rd].c_str(), register_list[instruction.I.rs1].c_str(), imm);
             break;
         case 115:   // 1110011 I type
-            if(instruction.I.imm11_0 == 0)
+            if(instruction.I.imm11_0 == 0){
                 opcode = "ECALL";
-            else
+                if(temp_register[17]==64){
+                    temp_register[10]=temp_register[12];
+                }
+                else if(temp_register[17]==93){
+                    end = true;
+                }
+            }
+            else{
                 opcode = "EBREAK";
+            }
             printf("%s\n", opcode.c_str());
-            show_register(temp_register);
             pc += 4;
             break;
         case 35:    // 0100011 S type
@@ -254,7 +263,7 @@ int main(int argc, char **argv){
                 break;
             }
             pc += 4;
-            printf("%s %s, %s, %d\n", opcode.c_str(), register_list[instruction.S.rs2].c_str(), register_list[instruction.S.rs1].c_str(), imm);
+            printf("%s %s, %d(%s)\n", opcode.c_str(), register_list[instruction.S.rs2].c_str(), imm, register_list[instruction.S.rs1].c_str());
             break;
         case 99:    // 1100011 B type
             signedbit = instruction.B.imm12;
@@ -338,5 +347,5 @@ int main(int argc, char **argv){
             break;
         }
     }
-    show_register(temp_register);
+    //show_register(temp_register);
 }
