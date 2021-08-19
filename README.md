@@ -1,6 +1,8 @@
 # RV32I emulator
 
-+ a readelf program for reading the ELF file
-+ disassemble the text section of ELF file
-+ get the assembly with register name
-+ next step: show the temperary register value after each instruction
++ A readelf program for reading the ELF file
++ Disassemble the text section of ELF file
++ Get the assembly with register name
++ Changing register value after each instruction
++ ECALL instruction for write to stdout and exit system call
++ An emulator for running elf file with output and showing instruction sequence
