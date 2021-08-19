@@ -1,23 +1,23 @@
 #include<iostream>
 #include<fstream>
 #include<string>
-#include<cstring>
-#include<unistd.h>
+#include<string.h>
 #include"my_elf.h"
 using namespace std;
 
-// Max memory size 2GB
+// Max memory size 2GB (uint32 * 536870908)
 #define MAX_MEMORY_SIZE 536870908
 
 void show_register(int *temp_register){
     for(int i=0;i<32;i++){
-        printf("%4s: 0x%08X\n", register_list[i].c_str(), temp_register[i]);
+        printf("%4s: 0x%08X\n", register_list[i], temp_register[i]);
     }
 }
 
 int main(int argc, char **argv){
     fstream file;
     file.open(argv[1], ios::in);
+    bool flag = (argc>2 && strcmp(argv[2],"--show-instruction")==0)?true:false;
     ELF_Header *elf_header = new ELF_Header;
     Program_Header *program_header = new Program_Header;
     uint32_t *memory = new uint32_t[MAX_MEMORY_SIZE];
@@ -29,7 +29,7 @@ int main(int argc, char **argv){
         file.seekg(elf_header->e_phoff+elf_header->e_phentsize*i, file.beg);
         file.read(buf, sizeof(Program_Header));
         memcpy(program_header, buf, sizeof(Program_Header));
-        if(program_header->p_type == 1){
+        if(program_header->p_type == 1){ // PH_LOAD
             file.seekg(program_header->p_offset, file.beg);
             //cout<<file.tellg()<<" "<<program_header->p_vaddr<<" "<<program_header->p_memsz<<endl;
             file.read((char*)memory+program_header->p_vaddr, program_header->p_memsz);
@@ -42,8 +42,8 @@ int main(int argc, char **argv){
     }*/
 
     file.close();
-    string next, opcode;
-    int pc = elf_header->e_entry;
+    char const *opcode;
+    int pc = elf_header->e_entry; // start of text section
     int temp_register[32]={};
     temp_register[2]=MAX_MEMORY_SIZE*4;
     int signedbit;
@@ -52,11 +52,12 @@ int main(int argc, char **argv){
 
     //while(getline(cin, next)){
     while(!end){
-        //usleep(500*1000);
-        temp_register[0] = 0;
+        temp_register[0] = 0; // x0 register always be 0
         //show_register(temp_register);
-        printf("%05X: ", pc);
-        printf("%08X ", memory[pc/4]);
+        if(flag){
+            printf("%05X: ", pc);
+            printf("%08X ", memory[pc/4]);
+        }
         //printf("%08X %08X %08X %08X ", temp_register[8], temp_register[13], temp_register[14], temp_register[15]);
         Instruction instruction = {memory[pc/4]};
         switch (instruction.general.opcode)
@@ -119,7 +120,8 @@ int main(int argc, char **argv){
             default:
                 break;
             }
-            printf("%s %s, %s, %s\n", opcode.c_str(), register_list[instruction.R.rd].c_str(), register_list[instruction.R.rs1].c_str(), register_list[instruction.R.rs2].c_str());
+            if(flag)
+                printf("%s %s, %s, %s\n", opcode, register_list[instruction.R.rd], register_list[instruction.R.rs1], register_list[instruction.R.rs2]);
             pc += 4;
             break;
         case 3:     // 0000011 I type
@@ -160,7 +162,8 @@ int main(int argc, char **argv){
             default:
                 break;
             }
-            printf("%s %s, %d(%s)\n", opcode.c_str(), register_list[instruction.I.rd].c_str(), imm, register_list[instruction.I.rs1].c_str());
+            if(flag)
+                printf("%s %s, %d(%s)\n", opcode, register_list[instruction.I.rd], imm, register_list[instruction.I.rs1]);
             pc += 4;
             break;
         case 19:    // 0010011 I type
@@ -209,7 +212,8 @@ int main(int argc, char **argv){
             default:
                 break;
             }
-            printf("%s %s, %s, %d\n", opcode.c_str(), register_list[instruction.I.rd].c_str(), register_list[instruction.I.rs1].c_str(), imm);
+            if(flag)
+                printf("%s %s, %s, %d\n", opcode, register_list[instruction.I.rd], register_list[instruction.I.rs1], imm);
             pc += 4;
             break;
         case 103:   // 1100111 I type
@@ -218,22 +222,32 @@ int main(int argc, char **argv){
             opcode = "JALR";
             temp_register[instruction.I.rd] = pc+4;
             pc = (temp_register[instruction.I.rs1]+imm);
-            printf("%s %s, %s, %d\n", opcode.c_str(), register_list[instruction.I.rd].c_str(), register_list[instruction.I.rs1].c_str(), imm);
+            if(flag)
+                printf("%s %s, %s, %d\n", opcode, register_list[instruction.I.rd], register_list[instruction.I.rs1], imm);
             break;
         case 115:   // 1110011 I type
             if(instruction.I.imm11_0 == 0){
                 opcode = "ECALL";
+                if(flag)
+                    printf("%s\n", opcode);
                 if(temp_register[17]==64){
+                    if(temp_register[10]==1){
+                        for(int i=0;i<temp_register[12];i++){
+                            printf("%c", *((char*)(memory)+(temp_register[11]+i)));
+                        }
+                    }
                     temp_register[10]=temp_register[12];
                 }
                 else if(temp_register[17]==93){
+                    printf("Program exited with code: %d\n", temp_register[10]);
                     end = true;
                 }
             }
             else{
                 opcode = "EBREAK";
+                if(flag)
+                    printf("%s\n", opcode);
             }
-            printf("%s\n", opcode.c_str());
             pc += 4;
             break;
         case 35:    // 0100011 S type
@@ -263,7 +277,8 @@ int main(int argc, char **argv){
                 break;
             }
             pc += 4;
-            printf("%s %s, %d(%s)\n", opcode.c_str(), register_list[instruction.S.rs2].c_str(), imm, register_list[instruction.S.rs1].c_str());
+            if(flag)
+                printf("%s %s, %d(%s)\n", opcode, register_list[instruction.S.rs2], imm, register_list[instruction.S.rs1]);
             break;
         case 99:    // 1100011 B type
             signedbit = instruction.B.imm12;
@@ -321,18 +336,21 @@ int main(int argc, char **argv){
             default:
                 break;
             }
-            printf("%s %s, %s, %d\n", opcode.c_str(), register_list[instruction.B.rs2].c_str(), register_list[instruction.B.rs1].c_str(), imm);
+            if(flag)
+                printf("%s %s, %s, %d\n", opcode, register_list[instruction.B.rs2], register_list[instruction.B.rs1], imm);
             break;
         case 55:    // 0110111 U type
             opcode = "LUI";
             temp_register[instruction.U.rd] = (instruction.U.imm31_12<<12);
-            printf("%s %s, %d\n", opcode.c_str(), register_list[instruction.U.rd].c_str(), instruction.U.imm31_12);
+            if(flag)
+                printf("%s %s, %d\n", opcode, register_list[instruction.U.rd], instruction.U.imm31_12);
             pc += 4;
             break;
         case 23:    // 0010111 U type
             opcode = "AUIPC";
             temp_register[instruction.U.rd] = (instruction.U.imm31_12<<12)+pc;
-            printf("%s %s, %d\n", opcode.c_str(), register_list[instruction.U.rd].c_str(), instruction.U.imm31_12);
+            if(flag)
+                printf("%s %s, %d\n", opcode, register_list[instruction.U.rd], instruction.U.imm31_12);
             pc += 4;
             break;
         case 111:   // 1101111 J type
@@ -341,11 +359,13 @@ int main(int argc, char **argv){
             opcode = "JAL";
             temp_register[instruction.J.rd] = pc + 4;
             pc += imm;
-            printf("%s %s, %d\n", opcode.c_str(), register_list[instruction.J.rd].c_str(), imm);
+            if(flag)
+                printf("%s %s, %d\n", opcode, register_list[instruction.J.rd], imm);
             break;        
         default:
             break;
         }
     }
     //show_register(temp_register);
+    delete memory;
 }
