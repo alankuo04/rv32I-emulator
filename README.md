@@ -6,3 +6,5 @@
 + Changing register value after each instruction
 + ECALL instruction for write to stdout and exit system call
 + An emulator for running elf file with output and showing instruction sequence
+---
++ QT C++ emulator for loading file and simple function
