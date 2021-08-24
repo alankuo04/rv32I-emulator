@@ -1,24 +1,21 @@
 #ifndef ELFREADER_H
 #define ELFREADER_H
 
-#include<QString>
+#include <QString>
+#include "elfheader.h"
 
 class ElfReader
 {
 public:
-    ElfReader();
-    void loadFile(QString filePath);
-    void setFilePath(QString filePath);
-    QString getFilePath();
-    bool isElfFile();
-    void setText(QString text);
-    QString getText();
+    ElfReader(QString text);
+    QString getTextSection();
 
 private:
-    QString filePath;
-    QString text;
-    int pc;
-
+    ELF_Header *elf_header = nullptr;
+    Program_Header *program_header = nullptr;
+    Section_Header *section_header = nullptr;
+    char *string_table = nullptr;
+    Text_section *text = nullptr;
 };
 
 #endif // ELFREADER_H

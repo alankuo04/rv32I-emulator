@@ -10,11 +10,14 @@ CONFIG += c++11
 
 SOURCES += \
     elfreader.cpp \
+    filereader.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    elfheader.h \
     elfreader.h \
+    filereader.h \
     mainwindow.h
 
 FORMS += \

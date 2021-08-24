@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <filereader.h>
 #include <elfreader.h>
 
 QT_BEGIN_NAMESPACE
@@ -35,6 +36,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    ElfReader elfReader;
+    FileReader fileReader;
 };
 #endif // MAINWINDOW_H
