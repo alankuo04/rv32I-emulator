@@ -7,8 +7,10 @@
 class ElfReader
 {
 public:
-    ElfReader(QString text);
+    ElfReader(QString filePath);
     QString getTextSection();
+    int getEntry();
+    bool isElf();
 
 private:
     ELF_Header *elf_header = nullptr;
@@ -16,6 +18,7 @@ private:
     Section_Header *section_header = nullptr;
     char *string_table = nullptr;
     Text_section *text = nullptr;
+    bool isElfFile;
 };
 
 #endif // ELFREADER_H

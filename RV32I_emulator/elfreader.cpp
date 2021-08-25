@@ -1,6 +1,7 @@
 #include <QFile>
 #include <QDebug>
 #include "elfreader.h"
+#include "disassembler.h"
 #include <string>
 #include <sstream>
 
@@ -8,6 +9,7 @@ ElfReader::ElfReader(QString filePath)
 {
     QFile file(filePath);
     Section_Header *temp = new Section_Header;
+    isElfFile = false;
     if(file.exists())
     {
         if(file.open(QIODevice::ReadOnly))
@@ -18,6 +20,7 @@ ElfReader::ElfReader(QString filePath)
             memcpy(elf_header, buf, sizeof(ELF_Header));
             if(elf_header->e_ident[0]==0x7f && elf_header->e_ident[1]=='E' && elf_header->e_ident[2]=='L' && elf_header->e_ident[3]=='F')
             {
+                isElfFile = true;
                 program_header = new Program_Header[elf_header->e_phnum];
                 file.seek(elf_header->e_phoff);
                 for(int i=0;i<elf_header->e_phnum;i++)
@@ -65,10 +68,21 @@ ElfReader::ElfReader(QString filePath)
 QString ElfReader::getTextSection()
 {
     QString temp = "";
-    qDebug()<<text->size;
+    //qDebug()<<text->size;
     for(int i=0;i<text->size;i++)
     {
-        temp.append(QString::number(i)+": "+QString::number(text->text_section[i], 16)+"\n");
+        Disassembler instruction(text->text_section[i]);
+        temp.append(QString::number(elf_header->e_entry+i*4, 16).toUpper()+": "+instruction.getInstruction());
     }
     return temp;
+}
+
+int ElfReader::getEntry()
+{
+    return elf_header->e_entry;
+}
+
+bool ElfReader::isElf()
+{
+    return isElfFile;
 }

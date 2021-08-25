@@ -17,6 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
     spinbox->setValue(1000);
     spinbox->setSuffix(" ms");
     ui->toolBar->addWidget(spinbox);
+    ui->tabWidget->setTabText(0, "Register");
+    ui->tabWidget->setTabText(1, "Memory");
 }
 
 MainWindow::~MainWindow()
@@ -28,13 +30,21 @@ void MainWindow::on_actionLoad_File_triggered()
 {
     QString currentPath = QDir::currentPath();
     QString title = "Open a elf file";
-    QString filter = "All file(*.*);;Elf file(*.elf)";
+    QString filter = "All file(*.*);;Elf file(*.elf);;Sprite Elf file(*.se)";
     fileReader.setFilePath(QFileDialog::getOpenFileName(this, title, currentPath, filter));
     if(fileReader.getFilePath().isEmpty())
         return;
     ElfReader elfReader(fileReader.getFilePath());
-    fileReader.setText(elfReader.getTextSection());
-    ui->textBrowser->setPlainText(fileReader.getText());
+
+    if(elfReader.isElf())
+    {
+        fileReader.setText(elfReader.getTextSection());
+        ui->textBrowser->setPlainText(fileReader.getText());
+    }
+    else
+    {
+        ui->textBrowser->setPlainText("");
+    }
 
 }
 
@@ -65,7 +75,7 @@ void MainWindow::on_actionStep_triggered()
 
 void MainWindow::on_actionEnd_triggered()
 {
-
+    ui->Console->setPlainText("123");
 }
 
 void MainWindow::on_actionStop_triggered()
