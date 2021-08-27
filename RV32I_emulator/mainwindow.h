@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QSpinBox>
 #include <filereader.h>
 #include <elfreader.h>
 #include <emulator.h>
@@ -35,8 +36,16 @@ private slots:
 
     void on_actionStop_triggered();
 
+    void on_actionRun_triggered();
+
+    void spinBox_valueChanged();
+
+    void on_DeleteConsole_clicked();
+
 private:
-    Ui::MainWindow *ui;
-    FileReader fileReader;
+    Ui::MainWindow *ui = nullptr;
+    QSpinBox *spinbox = nullptr;
+    FileReader *fileReader = nullptr;
+    Emulator *emulator = nullptr;
 };
 #endif // MAINWINDOW_H
