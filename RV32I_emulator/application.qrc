@@ -3,6 +3,8 @@
         <file>Images/End.png</file>
         <file>Images/Reset.png</file>
         <file>Images/Step.png</file>
-        <file>Images/Stoppng.png</file>
+        <file>Images/Stop.png</file>
+        <file>Images/Run.png</file>
+        <file>Images/Delete.png</file>
     </qresource>
 </RCC>

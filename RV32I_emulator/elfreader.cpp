@@ -77,6 +77,11 @@ QString ElfReader::getTextSection()
     return temp;
 }
 
+Program_Header* ElfReader::getProgramHeader()
+{
+    return program_header;
+}
+
 int ElfReader::getEntry()
 {
     return elf_header->e_entry;

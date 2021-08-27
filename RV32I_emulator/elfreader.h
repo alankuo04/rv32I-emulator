@@ -9,6 +9,7 @@ class ElfReader
 public:
     ElfReader(QString filePath);
     QString getTextSection();
+    Program_Header* getProgramHeader();
     int getEntry();
     bool isElf();
 
