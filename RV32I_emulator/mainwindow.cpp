@@ -20,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->toolBar->addWidget(spinbox);
     ui->tabWidget->setTabText(0, "Register");
     ui->tabWidget->setTabText(1, "Memory");
-
 }
 
 MainWindow::~MainWindow()
@@ -82,7 +81,9 @@ void MainWindow::on_actionStep_triggered()
 {
     if(emulator!=nullptr)
     {
-        ui->Console->append(emulator->nextInstruction());
+        QString temp = emulator->nextInstruction();
+        if(!temp.isEmpty())
+            ui->Console->append(temp);
     }
 }
 
@@ -105,8 +106,20 @@ void MainWindow::on_actionStop_triggered()
 
 void MainWindow::on_actionRun_triggered()
 {
-    while (!emulator->isEnd()) {
+    fileReader->setStop(false);
+    while (!emulator->isEnd() && !fileReader->isStop()) {
         QString temp = emulator->nextInstruction();
+
+        int cursor = (emulator->getPC()-emulator->getEntry())/4;
+
+        QTextCursor highlight_cursor(ui->textBrowser->textCursor());
+        highlight_cursor.movePosition(QTextCursor::Down, QTextCursor::KeepAnchor, cursor);
+        QTextCharFormat color;
+        color.setBackground(Qt::red);
+        highlight_cursor.setCharFormat(color);
+
+        qDebug()<<cursor<<" "<<highlight_cursor.position();
+
         if(!temp.isEmpty())
             ui->Console->append(temp);
         QElapsedTimer timer;
