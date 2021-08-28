@@ -15,3 +15,4 @@
 + Running to end of the execution without interval
 + Showing the stdout of the emulator in Console
 + Next: Showing the Register and Memory value of emulator
++ Next: Highlight the current executing line
