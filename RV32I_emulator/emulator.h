@@ -14,6 +14,7 @@ public:
     QList<uint32_t>* getRegisterList();
     QList<QList<uint32_t>>* getMemoryList();
     int getPC();
+    int getEntry();
     bool isEnd();
 
 private:

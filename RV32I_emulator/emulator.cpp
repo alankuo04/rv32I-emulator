@@ -339,6 +339,11 @@ int Emulator::getPC()
     return pc;
 }
 
+int Emulator::getEntry()
+{
+    return entry;
+}
+
 bool Emulator::isEnd()
 {
     return end;
