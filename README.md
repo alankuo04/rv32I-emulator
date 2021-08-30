@@ -14,5 +14,6 @@
 + Running to end of the execution with setting interval, 10 to 2000 ms
 + Running to end of the execution without interval
 + Showing the stdout of the emulator in Console
++ Highlighting the current executing line
 + Next: Showing the Register and Memory value of emulator
-+ Next: Highlight the current executing line
+
