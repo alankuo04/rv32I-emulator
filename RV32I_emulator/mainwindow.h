@@ -18,6 +18,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void highlightCurrentLine();
 
 private slots:
     void on_actionLoad_File_triggered();

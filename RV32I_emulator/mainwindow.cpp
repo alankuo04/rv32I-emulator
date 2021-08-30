@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "memorymapmodel.h"
 
 #include<QDir>
 #include<QFileDialog>
@@ -20,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->toolBar->addWidget(spinbox);
     ui->tabWidget->setTabText(0, "Register");
     ui->tabWidget->setTabText(1, "Memory");
+    MemoryMapModel *memoryModel = new MemoryMapModel(this);
+    ui->MemoryList->setModel(memoryModel);
 }
 
 MainWindow::~MainWindow()
@@ -27,6 +30,27 @@ MainWindow::~MainWindow()
     delete ui;
     delete fileReader;
     delete emulator;
+}
+
+void MainWindow::highlightCurrentLine()
+{
+    int cursor = (emulator->getPC()-emulator->getEntry())/4;
+
+    QTextCursor highlight_cursor(ui->textBrowser->document());
+    highlight_cursor.movePosition(QTextCursor::Down, QTextCursor::KeepAnchor, cursor);
+    QList<QTextEdit::ExtraSelection> extraSelections;
+    QTextEdit::ExtraSelection selection;
+    QColor lineColor = QColor(Qt::red).lighter(150);
+    selection.format.setBackground(lineColor);
+    selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+    selection.cursor = highlight_cursor;
+    selection.cursor.clearSelection();
+    extraSelections.append(selection);
+    ui->textBrowser->setExtraSelections(extraSelections);
+
+    qDebug()<<cursor<<" "<<highlight_cursor.blockNumber()<<ui->textBrowser->blockCount();
+    ui->textBrowser->setTextCursor(highlight_cursor);
+    ui->textBrowser->setCenterOnScroll(true);
 }
 
 void MainWindow::on_actionLoad_File_triggered()
@@ -74,13 +98,19 @@ void MainWindow::on_actionVersion_triggered()
 void MainWindow::on_actionReset_triggered()
 {
     delete emulator;
-    emulator = new Emulator(fileReader->getFilePath());
+    fileReader->setStop(true);
+    if(!fileReader->getFilePath().isEmpty())
+    {
+        emulator = new Emulator(fileReader->getFilePath());
+        highlightCurrentLine();
+    }
 }
 
 void MainWindow::on_actionStep_triggered()
 {
     if(emulator!=nullptr)
     {
+        highlightCurrentLine();
         QString temp = emulator->nextInstruction();
         if(!temp.isEmpty())
             ui->Console->append(temp);
@@ -96,6 +126,7 @@ void MainWindow::on_actionEnd_triggered()
             if(!temp.isEmpty())
                 ui->Console->append(temp);
         }
+        highlightCurrentLine();
     }
 }
 
@@ -106,26 +137,22 @@ void MainWindow::on_actionStop_triggered()
 
 void MainWindow::on_actionRun_triggered()
 {
-    fileReader->setStop(false);
-    while (!emulator->isEnd() && !fileReader->isStop()) {
-        QString temp = emulator->nextInstruction();
+    if(emulator!=nullptr)
+    {
+        fileReader->setStop(false);
+        while (!emulator->isEnd() && !fileReader->isStop()) {
 
-        int cursor = (emulator->getPC()-emulator->getEntry())/4;
+            highlightCurrentLine();
 
-        QTextCursor highlight_cursor(ui->textBrowser->textCursor());
-        highlight_cursor.movePosition(QTextCursor::Down, QTextCursor::KeepAnchor, cursor);
-        QTextCharFormat color;
-        color.setBackground(Qt::red);
-        highlight_cursor.setCharFormat(color);
+            QString temp = emulator->nextInstruction();
 
-        qDebug()<<cursor<<" "<<highlight_cursor.position();
-
-        if(!temp.isEmpty())
-            ui->Console->append(temp);
-        QElapsedTimer timer;
-        timer.start();
-        while (timer.elapsed()<fileReader->getInterval()) {
-            QCoreApplication::processEvents();
+            if(!temp.isEmpty())
+                ui->Console->append(temp);
+            QElapsedTimer timer;
+            timer.start();
+            while (timer.elapsed()<fileReader->getInterval()) {
+                QCoreApplication::processEvents();
+            }
         }
     }
 }
