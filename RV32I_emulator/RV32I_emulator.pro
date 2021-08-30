@@ -14,7 +14,8 @@ SOURCES += \
     emulator.cpp \
     filereader.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    memorymapmodel.cpp
 
 HEADERS += \
     disassembler.h \
@@ -23,7 +24,8 @@ HEADERS += \
     emulator.h \
     filereader.h \
     instruction.h \
-    mainwindow.h
+    mainwindow.h \
+    memorymapmodel.h
 
 FORMS += \
     mainwindow.ui
