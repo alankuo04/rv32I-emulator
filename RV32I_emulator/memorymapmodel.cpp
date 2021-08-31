@@ -1,28 +1,38 @@
 #include "memorymapmodel.h"
 
-#define MAX_MEMORY_SIZE 536870908
-
 MemoryMapModel::MemoryMapModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
+    memory = new uint32_t[MAX_MEMORY_SIZE];
+}
+
+void MemoryMapModel::memoryMapChanged()
+{
+    emit dataChanged(index(0, 0), index(rowCount(), columnCount()));
 }
 
 int MemoryMapModel::rowCount(const QModelIndex & /*parent*/) const
 {
-   return 128;
+   return 16;
 }
 
 int MemoryMapModel::columnCount(const QModelIndex & /*parent*/) const
 {
-    return 1;
+    return 2;
 }
 
 QVariant MemoryMapModel::data(const QModelIndex &index, int role) const
 {
-    /*if (role == Qt::DisplayRole)
-       return QString("Row%1, Column%2")
-                   .arg(index.row() + 1)
-                   .arg(index.column() +1);
-    */
+    if (role == Qt::DisplayRole)
+    {
+        if(index.column()==0)
+        {
+            return QString("0x")+QString("%1").arg(0+index.row()*4, 8, 16, QLatin1Char('0')).toUpper();
+        }
+        else if(index.column()==1)
+        {
+            return QString("0x")+QString("%1").arg(memory[index.row()], 8, 16, QLatin1Char('0')).toUpper();
+        }
+    }
     return QVariant();
 }
