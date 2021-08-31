@@ -19,6 +19,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void highlightCurrentLine();
+    void updateRegisterList();
+    void updateMemoryList();
 
 private slots:
     void on_actionLoad_File_triggered();

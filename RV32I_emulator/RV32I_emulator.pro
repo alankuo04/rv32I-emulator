@@ -15,7 +15,8 @@ SOURCES += \
     filereader.cpp \
     main.cpp \
     mainwindow.cpp \
-    memorymapmodel.cpp
+    memorymapmodel.cpp \
+    registermapmodel.cpp
 
 HEADERS += \
     disassembler.h \
@@ -25,7 +26,8 @@ HEADERS += \
     filereader.h \
     instruction.h \
     mainwindow.h \
-    memorymapmodel.h
+    memorymapmodel.h \
+    registermapmodel.h
 
 FORMS += \
     mainwindow.ui

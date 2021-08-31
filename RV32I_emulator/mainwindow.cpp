@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "memorymapmodel.h"
+#include "registermapmodel.h"
 
 #include<QDir>
 #include<QFileDialog>
@@ -21,8 +22,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->toolBar->addWidget(spinbox);
     ui->tabWidget->setTabText(0, "Register");
     ui->tabWidget->setTabText(1, "Memory");
-    MemoryMapModel *memoryModel = new MemoryMapModel(this);
-    ui->MemoryList->setModel(memoryModel);
+    ui->RegisterList->verticalHeader()->hide();
+    ui->textBrowser->setCenterOnScroll(true);
+
 }
 
 MainWindow::~MainWindow()
@@ -37,7 +39,7 @@ void MainWindow::highlightCurrentLine()
     int cursor = (emulator->getPC()-emulator->getEntry())/4;
 
     QTextCursor highlight_cursor(ui->textBrowser->document());
-    highlight_cursor.movePosition(QTextCursor::Down, QTextCursor::KeepAnchor, cursor);
+    highlight_cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, cursor);
     QList<QTextEdit::ExtraSelection> extraSelections;
     QTextEdit::ExtraSelection selection;
     QColor lineColor = QColor(Qt::red).lighter(150);
@@ -48,9 +50,18 @@ void MainWindow::highlightCurrentLine()
     extraSelections.append(selection);
     ui->textBrowser->setExtraSelections(extraSelections);
 
-    qDebug()<<cursor<<" "<<highlight_cursor.blockNumber()<<ui->textBrowser->blockCount();
+    //qDebug()<<cursor<<" "<<highlight_cursor.blockNumber()<<ui->textBrowser->blockCount();
     ui->textBrowser->setTextCursor(highlight_cursor);
-    ui->textBrowser->setCenterOnScroll(true);
+}
+
+void MainWindow::updateRegisterList()
+{
+    emulator->updateRegisterMapModel();
+}
+
+void MainWindow::updateMemoryList()
+{
+    emulator->updateMemoryMapModel();
 }
 
 void MainWindow::on_actionLoad_File_triggered()
@@ -69,6 +80,8 @@ void MainWindow::on_actionLoad_File_triggered()
         fileReader->setText(elfReader.getTextSection());
         ui->textBrowser->setPlainText(fileReader->getText());
 
+        ui->RegisterList->setModel(emulator->getRegisterMapModel());
+        ui->MemoryList->setModel(emulator->getMemoryMapModel());
     }
     else
     {
@@ -102,7 +115,10 @@ void MainWindow::on_actionReset_triggered()
     if(!fileReader->getFilePath().isEmpty())
     {
         emulator = new Emulator(fileReader->getFilePath());
+        ui->RegisterList->setModel(emulator->getRegisterMapModel());
+        ui->MemoryList->setModel(emulator->getMemoryMapModel());
         highlightCurrentLine();
+        updateRegisterList();
     }
 }
 
@@ -111,6 +127,7 @@ void MainWindow::on_actionStep_triggered()
     if(emulator!=nullptr)
     {
         highlightCurrentLine();
+        updateRegisterList();
         QString temp = emulator->nextInstruction();
         if(!temp.isEmpty())
             ui->Console->append(temp);
@@ -127,6 +144,7 @@ void MainWindow::on_actionEnd_triggered()
                 ui->Console->append(temp);
         }
         highlightCurrentLine();
+        updateRegisterList();
     }
 }
 
@@ -143,6 +161,7 @@ void MainWindow::on_actionRun_triggered()
         while (!emulator->isEnd() && !fileReader->isStop()) {
 
             highlightCurrentLine();
+            updateRegisterList();
 
             QString temp = emulator->nextInstruction();
 
