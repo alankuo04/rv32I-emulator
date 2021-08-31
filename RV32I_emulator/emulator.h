@@ -3,21 +3,25 @@
 
 #include <QString>
 #include "elfreader.h"
-
-#define MAX_MEMORY_SIZE 536870908
+#include "memorymapmodel.h"
+#include "registermapmodel.h"
 
 class Emulator
 {
 public:
     Emulator(QString filePath);
     QString nextInstruction();
+    RegisterMapModel* getRegisterMapModel();
+    MemoryMapModel* getMemoryMapModel();
+    void updateRegisterMapModel();
+    void updateMemoryMapModel();
     int getPC();
     int getEntry();
     bool isEnd();
 
 private:
-    uint32_t *memory;
-    int *temp_register;
+    RegisterMapModel *registerMap;
+    MemoryMapModel *memoryMap;
     int entry;
     int pc;
     bool end;
