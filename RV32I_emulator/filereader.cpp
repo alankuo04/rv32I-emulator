@@ -28,16 +28,6 @@ QString FileReader::getText()
     return text;
 }
 
-int FileReader::getPC()
-{
-    return pc;
-}
-
-void FileReader::setPC(int pc)
-{
-    this->pc = pc;
-}
-
 int FileReader::getInterval()
 {
     return interval;

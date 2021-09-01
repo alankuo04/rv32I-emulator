@@ -12,8 +12,6 @@ public:
     QString getFilePath();
     void setText(QString text);
     QString getText();
-    int getPC();
-    void setPC(int pc);
     int getInterval();
     void setInterval(int interval);
     bool isStop();
@@ -22,7 +20,6 @@ public:
 private:
     QString filePath;
     QString text;
-    int pc;
     int interval;
     bool stop;
 };
