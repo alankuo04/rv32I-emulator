@@ -43,11 +43,13 @@ ElfReader::ElfReader(QString filePath)
                 string_table = new char[temp->sh_size];
                 file.read(string_table, temp->sh_size);
                 text = new Text_section;
+                sectionMap = new QMap<QString, int>;
                 for(int i=0;i<elf_header->e_shnum;i++)
                 {
                     std::stringstream ss(string_table+(section_header+i)->sh_name);
                     std::string name;
                     ss>>name;
+                    sectionMap->insert(QString::fromStdString(name), (int)(section_header+i)->sh_addr);
                     if(name == ".text")
                     {
                         file.seek((section_header+i)->sh_offset);
@@ -55,7 +57,6 @@ ElfReader::ElfReader(QString filePath)
                         text->size = (section_header+i)->sh_size/sizeof(uint32_t);
                         file.read((char*)text->text_section, (section_header+i)->sh_size);
                         file.flush();
-                        break;
                     }
                 }
                 file.close();
@@ -80,6 +81,11 @@ QString ElfReader::getTextSection()
 Program_Header* ElfReader::getProgramHeader()
 {
     return program_header;
+}
+
+QMap<QString, int>* ElfReader::getSectionMap()
+{
+    return sectionMap;
 }
 
 int ElfReader::getEntry()
