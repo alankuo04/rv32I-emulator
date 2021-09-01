@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QSpinBox>
+#include <QScrollBar>
+#include <QComboBox>
 #include <filereader.h>
 #include <elfreader.h>
 #include <emulator.h>
@@ -43,12 +45,21 @@ private slots:
 
     void spinBox_valueChanged();
 
+    void scrollBar_scrolling();
+
+    void gotoMemoryByRegister();
+
+    void gotoMemoryBySection();
+
     void on_DeleteConsole_clicked();
 
 private:
     Ui::MainWindow *ui = nullptr;
     QSpinBox *spinbox = nullptr;
+    QScrollBar *scrollbar = nullptr;
+
     FileReader *fileReader = nullptr;
     Emulator *emulator = nullptr;
+    QMap<QString, int> *sectionMap = nullptr;
 };
 #endif // MAINWINDOW_H

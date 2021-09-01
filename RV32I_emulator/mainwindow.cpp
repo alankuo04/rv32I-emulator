@@ -20,9 +20,32 @@ MainWindow::MainWindow(QWidget *parent)
     spinbox->setSuffix(" ms");
     connect(spinbox, SIGNAL(valueChanged(int)), this, SLOT(spinBox_valueChanged()));
     ui->toolBar->addWidget(spinbox);
+
+    scrollbar = ui->MemoryList->verticalScrollBar();
+    connect(scrollbar, SIGNAL(actionTriggered(int)), this, SLOT(scrollBar_scrolling()));
+
     ui->tabWidget->setTabText(0, "Register");
     ui->tabWidget->setTabText(1, "Memory");
+
+    QList<QString> registerList;
+    for(int i=0;i<32;i++)
+        registerList.append(QString(register_list[i])+" (x"+QString::number(i)+")");
+    ui->gotoRegister->addItems(registerList);
+    QList<QString> memoryList;
+    memoryList.append("");
+    memoryList.append(".text");
+    memoryList.append(".rodata");
+    memoryList.append(".data");
+    memoryList.append(".sdata");
+    memoryList.append(".sbss");
+    memoryList.append(".bss");
+    ui->gotoSection->addItems(memoryList);
+
+    connect(ui->gotoRegister, SIGNAL(currentIndexChanged(int)), this, SLOT(gotoMemoryByRegister()));
+    connect(ui->gotoSection, SIGNAL(currentIndexChanged(int)), this, SLOT(gotoMemoryBySection()));
+
     ui->RegisterList->verticalHeader()->hide();
+    ui->MemoryList->verticalHeader()->hide();
     ui->textBrowser->setCenterOnScroll(true);
 
 }
@@ -78,14 +101,21 @@ void MainWindow::on_actionLoad_File_triggered()
     {
         emulator = new Emulator(fileReader->getFilePath());
         fileReader->setText(elfReader.getTextSection());
+        sectionMap = elfReader.getSectionMap();
         ui->textBrowser->setPlainText(fileReader->getText());
 
         ui->RegisterList->setModel(emulator->getRegisterMapModel());
         ui->MemoryList->setModel(emulator->getMemoryMapModel());
+
+        //qDebug()<<sectionMap->keys();
+        //qDebug()<<sectionMap->values();
     }
     else
     {
         ui->textBrowser->setPlainText("");
+        ui->Console->append("===============");
+        ui->Console->append("Not an elf file.");
+        ui->Console->append("===============");
     }
 
 }
@@ -119,6 +149,7 @@ void MainWindow::on_actionReset_triggered()
         ui->MemoryList->setModel(emulator->getMemoryMapModel());
         highlightCurrentLine();
         updateRegisterList();
+        updateMemoryList();
     }
 }
 
@@ -128,6 +159,7 @@ void MainWindow::on_actionStep_triggered()
     {
         highlightCurrentLine();
         updateRegisterList();
+        updateMemoryList();
         QString temp = emulator->nextInstruction();
         if(!temp.isEmpty())
             ui->Console->append(temp);
@@ -145,6 +177,7 @@ void MainWindow::on_actionEnd_triggered()
         }
         highlightCurrentLine();
         updateRegisterList();
+        updateMemoryList();
     }
 }
 
@@ -162,6 +195,7 @@ void MainWindow::on_actionRun_triggered()
 
             highlightCurrentLine();
             updateRegisterList();
+            updateMemoryList();
 
             QString temp = emulator->nextInstruction();
 
@@ -180,6 +214,44 @@ void MainWindow::spinBox_valueChanged()
 {
     fileReader->setInterval(spinbox->value());
     fileReader->setStop(true);
+}
+
+void MainWindow::scrollBar_scrolling()
+{
+    //qDebug()<<scrollbar->sliderPosition()<<" "<<scrollbar->maximum();
+    if(scrollbar->sliderPosition()==0 && scrollbar->maximum()==0)
+        return;
+    else if(scrollbar->sliderPosition() == 0)
+    {
+        emulator->getMemoryMapModel()->addStartIndex();
+    }
+    else if(scrollbar->sliderPosition() == scrollbar->maximum())
+    {
+        emulator->getMemoryMapModel()->subStartIndex();
+    }
+    updateMemoryList();
+}
+
+void MainWindow::gotoMemoryByRegister()
+{
+    if(emulator!=nullptr)
+    {
+        int memoryPosition = emulator->getRegisterMapModel()->temp_register[ui->gotoRegister->currentIndex()];
+        //qDebug()<<ui->gotoRegister->currentIndex()<<" "<<memoryPosition;
+        emulator->getMemoryMapModel()->setStartIndex(memoryPosition);
+        updateMemoryList();
+    }
+}
+
+void MainWindow::gotoMemoryBySection()
+{
+    if(emulator!=nullptr)
+    {
+        int memoryPosition = sectionMap->value(ui->gotoSection->currentText());
+        //qDebug()<<ui->gotoSection->currentIndex()<<" "<<memoryPosition;
+        emulator->getMemoryMapModel()->setStartIndex(memoryPosition);
+        updateMemoryList();
+    }
 }
 
 void MainWindow::on_DeleteConsole_clicked()
