@@ -17,4 +17,6 @@
 + Highlighting the current executing line
 + Showing the Register and Memory value of emulator
 + Improve the memory list in emulator
-
++ Next Step: Release the v1.0 of RV32I emulator and make the layout more beautiful
++ Next Step: Adding more syscall for emualator
++ Next Step: Making README.md more useful and beautiful
