@@ -12,7 +12,11 @@ public:
     Program_Header* getProgramHeader();
     QMap<QString, int>* getSectionMap();
     int getEntry();
+    QString showElfHeader();
+    QString showProgramHeader();
+    QString showSectionHeader();
     bool isElf();
+    QString get_e_machine(int);
 
 private:
     ELF_Header *elf_header = nullptr;
