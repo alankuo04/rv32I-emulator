@@ -141,21 +141,21 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox message;
-    QPushButton *elfHeaderButton = message.addButton("ELF Header", QMessageBox::ActionRole);
-    QPushButton *programHeaderButton = message.addButton("Program Header", QMessageBox::ActionRole);
-    QPushButton *sectionHeaderButton = message.addButton("Section Header", QMessageBox::ActionRole);
-    message.setStandardButtons(QMessageBox::Cancel);
-    message.setDefaultButton(QMessageBox::Cancel);
+    QMessageBox *message = new QMessageBox;
+    QPushButton *elfHeaderButton = message->addButton("ELF Header", QMessageBox::ActionRole);
+    QPushButton *programHeaderButton = message->addButton("Program Header", QMessageBox::ActionRole);
+    QPushButton *sectionHeaderButton = message->addButton("Section Header", QMessageBox::ActionRole);
+    message->setStandardButtons(QMessageBox::Cancel);
+    message->setDefaultButton(QMessageBox::Cancel);
     elfHeaderButton->disconnect();
     programHeaderButton->disconnect();
     sectionHeaderButton->disconnect();
 
-    connect(elfHeaderButton, &QPushButton::pressed, [&](){message.setText("");});
-    connect(programHeaderButton, &QPushButton::pressed, [&](){message.setText("");});
-    connect(sectionHeaderButton, &QPushButton::pressed, [&](){message.setText("");});
+    connect(elfHeaderButton, &QPushButton::pressed, [=](){message->setText(elfReader->showElfHeader());});
+    connect(programHeaderButton, &QPushButton::pressed, [=](){message->setText(elfReader->showProgramHeader());});
+    connect(sectionHeaderButton, &QPushButton::pressed, [=](){message->setText(elfReader->showSectionHeader());});
 
-    message.exec();
+    message->exec();
 }
 
 void MainWindow::on_actionVersion_triggered()
