@@ -6,6 +6,7 @@
 #include<QDir>
 #include<QFileDialog>
 #include<QElapsedTimer>
+#include<QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -107,15 +108,25 @@ void MainWindow::on_actionLoad_File_triggered()
         ui->RegisterList->setModel(emulator->getRegisterMapModel());
         ui->MemoryList->setModel(emulator->getMemoryMapModel());
 
+        ui->RegisterList->setColumnWidth(0, 120);
+        ui->RegisterList->setColumnWidth(1, 120);
+        ui->RegisterList->setColumnWidth(2, 120);
+
+        ui->MemoryList->setColumnWidth(0, 80);
+        ui->MemoryList->setColumnWidth(1, 80);
+        ui->MemoryList->setColumnWidth(2, 50);
+        ui->MemoryList->setColumnWidth(3, 50);
+        ui->MemoryList->setColumnWidth(4, 50);
+        ui->MemoryList->setColumnWidth(5, 50);
         //qDebug()<<sectionMap->keys();
         //qDebug()<<sectionMap->values();
     }
     else
     {
         ui->textBrowser->setPlainText("");
-        ui->Console->append("===============");
-        ui->Console->append("Not an elf file.");
-        ui->Console->append("===============");
+        ui->Console->append("=========================");
+        ui->Console->append("\tNot an elf file.");
+        ui->Console->append("=========================");
     }
 
 }
@@ -135,7 +146,13 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_actionVersion_triggered()
 {
-
+    QMessageBox message;
+    message.setIcon(QMessageBox::Information);
+    message.setText("RV32I Emulator");
+    message.setInformativeText("Version: 1.0");
+    message.setStandardButtons(QMessageBox::Ok);
+    message.setDefaultButton(QMessageBox::Ok);
+    message.exec();
 }
 
 void MainWindow::on_actionReset_triggered()
