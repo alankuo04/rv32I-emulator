@@ -52,6 +52,10 @@ QVariant MemoryMapModel::data(const QModelIndex &index, int role) const
             return QString("0x")+QString("%1").arg(memory[row] & 0xFF, 2, 16, QLatin1Char('0')).toUpper();
         }
     }
+    else if(role == Qt::TextAlignmentRole)
+    {
+        return Qt::AlignCenter;
+    }
     return QVariant();
 }
 
