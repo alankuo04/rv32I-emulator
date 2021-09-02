@@ -4,7 +4,6 @@
 #include "disassembler.h"
 #include <string>
 #include <sstream>
-#include "elf.h"
 
 ElfReader::ElfReader(QString filePath)
 {
@@ -209,6 +208,46 @@ QString ElfReader::showElfHeader()
     temp += "\n";
     temp += "Machine:";
     temp += get_e_machine(elf_header->e_machine);
+    temp += "\n";
+    temp += "Version:";
+    switch (elf_header->e_version) {
+    case 1:
+        temp += "1";
+        break;
+    default:
+        temp += "Unknown";
+        break;
+    }
+    temp += "\n";
+    temp += "Entry:";
+    temp += QString::number(elf_header->e_entry, 16);
+    temp += "\n";
+    temp += "Program header offset:";
+    temp += QString::number(elf_header->e_phoff, 16);
+    temp += "\n";
+    temp += "Section header offset:";
+    temp += QString::number(elf_header->e_shoff, 16);
+    temp += "\n";
+    temp += "Flags:";
+    temp += QString::number(elf_header->e_flags, 16);
+    temp += "\n";
+    temp += "Elf header size:";
+    temp += QString::number(elf_header->e_ehsize);
+    temp += "\n";
+    temp += "Program header size:";
+    temp += QString::number(elf_header->e_phentsize);
+    temp += "\n";
+    temp += "Program header number:";
+    temp += QString::number(elf_header->e_phnum);
+    temp += "\n";
+    temp += "Section header size:";
+    temp += QString::number(elf_header->e_shentsize);
+    temp += "\n";
+    temp += "Section header number:";
+    temp += QString::number(elf_header->e_shnum);
+    temp += "\n";
+    temp += "Section header string table index:";
+    temp += QString::number(elf_header->e_shstrndx);
 
     return temp;
 }
@@ -216,12 +255,214 @@ QString ElfReader::showElfHeader()
 QString ElfReader::showProgramHeader()
 {
     QString temp = "";
+    temp += "Type\tFlag\tOffset\tVirtAddr\tPhysAddr\tFileSiz\tMemSiz\tAlign\n";
+    for(int i=0;i<elf_header->e_phnum;i++)
+    {
+        switch (program_header[i].p_type) {
+        case 1:
+            temp += "LOAD";
+            break;
+        case 2:
+            temp += "DYNAMIC";
+            break;
+        case 3:
+            temp += "INTERP";
+            break;
+        case 4:
+            temp += "NOTE";
+            break;
+        case 5:
+            temp += "SHLIB";
+            break;
+        case 6:
+            temp += "PHDR";
+            break;
+        case 0x70000000:
+            temp += "LOPROC";
+            break;
+        case 0x7fffffff:
+            temp += "HIPROC";
+            break;
+        default:
+            temp += "Unknown";
+            break;
+        }
+        temp += "\t";
+        switch (program_header[i].p_flags) {
+        case 0x0ff00000:
+            temp += "MASKOS";
+            break;
+        case 0xf0000000:
+            temp += "MASKPROC";
+            break;
+        default:
+            temp += (program_header[i].p_flags & 4)?"R":" ";
+            temp += (program_header[i].p_flags & 2)?"W":" ";
+            temp += (program_header[i].p_flags & 1)?"X":" ";
+            break;
+        }
+        temp += "\t";
+        temp += QString("%1").arg(program_header[i].p_offset, 8, 16, QLatin1Char('0'));
+        temp += "\t";
+        temp += QString("%1").arg(program_header[i].p_vaddr, 8, 16, QLatin1Char('0'));
+        temp += "\t";
+        temp += QString("%1").arg(program_header[i].p_paddr, 8, 16, QLatin1Char('0'));
+        temp += "\t";
+        temp += QString("%1").arg(program_header[i].p_filesz, 8, 16, QLatin1Char('0'));
+        temp += "\t";
+        temp += QString("%1").arg(program_header[i].p_memsz, 8, 16, QLatin1Char('0'));
+        temp += "\t";
+        temp += QString("%1").arg(program_header[i].p_align, 8, 16, QLatin1Char('0'));
+        temp += "\n";
+    }
     return temp;
 }
 
 QString ElfReader::showSectionHeader()
 {
     QString temp = "";
+    temp += "Name\tType\tAddr\tOffset\tSize\tES\tFlg\tLk\tInf\tAl\n";
+    for(int i=0;i<elf_header->e_shnum;i++)
+    {
+        std::stringstream ss(string_table+section_header[i].sh_name);
+        std::string name;
+        ss>>name;
+        temp += QString::fromStdString(name);
+        temp += "\t";
+        switch (section_header[i].sh_type) {
+        case 0:
+            temp += "NULL";
+            break;
+        case 1:
+            temp += "PROGBITS";
+            break;
+        case 2:
+            temp += "SYMTAB";
+            break;
+        case 3:
+            temp += "STRTAB";
+            break;
+        case 4:
+            temp += "RELA";
+            break;
+        case 5:
+            temp += "HASH";
+            break;
+        case 6:
+            temp += "DYNAMIC";
+            break;
+        case 7:
+            temp += "NOTE";
+            break;
+        case 8:
+            temp += "NOBITS";
+            break;
+        case 9:
+            temp += "REL";
+            break;
+        case 10:
+            temp += "SHLIB";
+            break;
+        case 11:
+            temp += "DYNSYM";
+            break;
+        case 14:
+            temp += "INIT_ARRAY";
+            break;
+        case 15:
+            temp += "FINI_ARRAY";
+            break;
+        case 16:
+            temp += "PREINIT_ARRAY";
+            break;
+        case 17:
+            temp += "GROUP";
+            break;
+        case 18:
+            temp += "SYMTAB_SHNDX";
+            break;
+        case 19:
+            temp += "NUM";
+            break;
+        case 0x60000000:
+            temp += "LOOS";
+            break;
+        case 0x6ffffff5:
+            temp += "GNU_ATTRIBUTES";
+            break;
+        case 0x6ffffff6:
+            temp += "GNU_HASH";
+            break;
+        case 0x6ffffff7:
+            temp += "GNU_LIBLIST";
+            break;
+        case 0x6ffffff8:
+            temp += "CHECKSUM";
+            break;
+        case 0x6ffffffa:
+            temp += "LOSUNW";
+            break;
+        case 0x6ffffffb:
+            temp += "SUNW_COMDAT";
+            break;
+        case 0x6ffffffc:
+            temp += "SUNW_syminfo";
+            break;
+        case 0x6ffffffd:
+            temp += "GNU_verdef";
+            break;
+        case 0x6ffffffe:
+            temp += "GNU_verneed";
+            break;
+        case 0x6fffffff:
+            temp += "GNU_versym";
+            break;
+        case 0x70000000:
+            temp += "LOPROC";
+            break;
+        case 0x7fffffff:
+            temp += "HIPROC";
+            break;
+        case 0x80000000:
+            temp += "LOUSER";
+            break;
+        case 0x8fffffff:
+            temp += "HIUSER";
+            break;
+        }
+        temp += "\t";
+        QString flags = "";
+        flags += (section_header[i].sh_flags & (1<<0))?"W":"";
+        flags += (section_header[i].sh_flags & (1<<1))?"A":"";
+        flags += (section_header[i].sh_flags & (1<<2))?"X":"";
+        flags += (section_header[i].sh_flags & (1<<4))?"M":"";
+        flags += (section_header[i].sh_flags & (1<<5))?"S":"";
+        flags += (section_header[i].sh_flags & (1<<6))?"I":"";
+        flags += (section_header[i].sh_flags & (1<<7))?"L":"";
+        flags += (section_header[i].sh_flags & (1<<8))?"O":"";
+        flags += (section_header[i].sh_flags & (1<<9))?"G":"";
+        flags += (section_header[i].sh_flags & (1<<10))?"T":"";
+        flags += (section_header[i].sh_flags & (1<<11))?"C":"";
+        flags += (section_header[i].sh_flags & 0x0ff00000)?"o":"";
+        flags += (section_header[i].sh_flags & 0xf0000000)?"p":"";
+        flags += (section_header[i].sh_flags & (1<<30))?"":"";
+        flags += (section_header[i].sh_flags & (1U<<31))?"E":"";
+        temp += QString("%1").arg(flags, 3, QLatin1Char(' '));
+        temp += "\t";
+        temp += QString("%1").arg(section_header[i].sh_addr, 8, 16, QLatin1Char('0'));
+        temp += "\t";
+        temp += QString("%1").arg(section_header[i].sh_offset, 6, 16, QLatin1Char('0'));
+        temp += "\t";
+        temp += QString("%1").arg(section_header[i].sh_size, 6, 16, QLatin1Char('0'));
+        temp += "\t";
+        temp += QString("%1").arg(section_header[i].sh_link, 2, 16, QLatin1Char('0'));
+        temp += "\t";
+        temp += QString("%1").arg(section_header[i].sh_info, 2, 16, QLatin1Char('0'));
+        temp += "\t";
+        temp += QString("%1").arg(section_header[i].sh_addralign, 2, 16, QLatin1Char('0'));
+        temp += "\t";
+        temp += QString("%1").arg(section_header[i].sh_entsize  , 2, 16, QLatin1Char('0'));
+    }
     return temp;
 }
 
