@@ -96,13 +96,13 @@ void MainWindow::on_actionLoad_File_triggered()
     fileReader->setFilePath(QFileDialog::getOpenFileName(this, title, currentPath, filter));
     if(fileReader->getFilePath().isEmpty())
         return;
-    ElfReader elfReader(fileReader->getFilePath());
+    elfReader = new ElfReader(fileReader->getFilePath());
 
-    if(elfReader.isElf())
+    if(elfReader->isElf())
     {
         emulator = new Emulator(fileReader->getFilePath());
-        fileReader->setText(elfReader.getTextSection());
-        sectionMap = elfReader.getSectionMap();
+        fileReader->setText(elfReader->getTextSection());
+        sectionMap = elfReader->getSectionMap();
         ui->textBrowser->setPlainText(fileReader->getText());
 
         ui->RegisterList->setModel(emulator->getRegisterMapModel());
@@ -141,7 +141,21 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
+    QMessageBox message;
+    QPushButton *elfHeaderButton = message.addButton("ELF Header", QMessageBox::ActionRole);
+    QPushButton *programHeaderButton = message.addButton("Program Header", QMessageBox::ActionRole);
+    QPushButton *sectionHeaderButton = message.addButton("Section Header", QMessageBox::ActionRole);
+    message.setStandardButtons(QMessageBox::Cancel);
+    message.setDefaultButton(QMessageBox::Cancel);
+    elfHeaderButton->disconnect();
+    programHeaderButton->disconnect();
+    sectionHeaderButton->disconnect();
 
+    connect(elfHeaderButton, &QPushButton::pressed, [&](){message.setText("");});
+    connect(programHeaderButton, &QPushButton::pressed, [&](){message.setText("");});
+    connect(sectionHeaderButton, &QPushButton::pressed, [&](){message.setText("");});
+
+    message.exec();
 }
 
 void MainWindow::on_actionVersion_triggered()

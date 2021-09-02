@@ -59,6 +59,7 @@ private:
     QScrollBar *scrollbar = nullptr;
 
     FileReader *fileReader = nullptr;
+    ElfReader *elfReader = nullptr;
     Emulator *emulator = nullptr;
     QMap<QString, int> *sectionMap = nullptr;
 };
