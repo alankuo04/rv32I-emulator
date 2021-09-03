@@ -154,7 +154,7 @@ void MainWindow::on_actionAbout_triggered()
     connect(elfHeaderButton, &QPushButton::pressed, [=](){message->setText(elfReader->showElfHeader());});
     connect(programHeaderButton, &QPushButton::pressed, [=](){message->setText(elfReader->showProgramHeader());});
     connect(sectionHeaderButton, &QPushButton::pressed, [=](){message->setText(elfReader->showSectionHeader());});
-
+    message->setFont(QFont("Consolas"));
     message->exec();
 }
 
