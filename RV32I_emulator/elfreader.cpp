@@ -96,7 +96,7 @@ int ElfReader::getEntry()
 QString ElfReader::showElfHeader()
 {
     QString temp = "";
-    temp += "ELF:";
+    temp += QString("%1").arg("Class:", -36);
     switch (elf_header->e_ident[4]) {
     case 1:
         temp += "ELF32";
@@ -109,7 +109,7 @@ QString ElfReader::showElfHeader()
         break;
     }
     temp += "\n";
-    temp += "Data:";
+    temp += QString("%1").arg("Data:", -36);
     switch (elf_header->e_ident[5]) {
     case 1:
         temp += "little endian";
@@ -122,7 +122,7 @@ QString ElfReader::showElfHeader()
         break;
     }
     temp += "\n";
-    temp += "Version:";
+    temp += QString("%1").arg("Version:", -36);
     switch (elf_header->e_ident[6]) {
     case 1:
         temp += "1(current)";
@@ -132,7 +132,7 @@ QString ElfReader::showElfHeader()
         break;
     }
     temp += "\n";
-    temp += "OS/ABI:";
+    temp += QString("%1").arg("OS/ABI:", -36);
     switch (elf_header->e_ident[7]) {
     case 0:
         temp += "No extensions or unspecified";
@@ -178,10 +178,10 @@ QString ElfReader::showElfHeader()
         break;
     }
     temp += "\n";
-    temp += "ABI Version:";
+    temp += QString("%1").arg("ABI Version:", -36);
     temp += QString::number(elf_header->e_ident[8]);
     temp += "\n";
-    temp += "Type:";
+    temp += QString("%1").arg("Type:", -36);
     switch (elf_header->e_type) {
     case 1:
         temp += "REL";
@@ -206,47 +206,47 @@ QString ElfReader::showElfHeader()
         break;
     }
     temp += "\n";
-    temp += "Machine:";
+    temp += QString("%1").arg("Machine:", -36);
     temp += get_e_machine(elf_header->e_machine);
     temp += "\n";
-    temp += "Version:";
+    temp += QString("%1").arg("Version:", -36);
     switch (elf_header->e_version) {
     case 1:
-        temp += "1";
+        temp += "0x1";
         break;
     default:
         temp += "Unknown";
         break;
     }
     temp += "\n";
-    temp += "Entry:";
-    temp += QString::number(elf_header->e_entry, 16);
+    temp += QString("%1").arg("Entry point address:", -36);
+    temp += "0x"+QString::number(elf_header->e_entry, 16);
     temp += "\n";
-    temp += "Program header offset:";
-    temp += QString::number(elf_header->e_phoff, 16);
+    temp += QString("%1").arg("Start of program header:", -36);
+    temp += QString::number(elf_header->e_phoff);
     temp += "\n";
-    temp += "Section header offset:";
-    temp += QString::number(elf_header->e_shoff, 16);
+    temp += QString("%1").arg("Start of section header:", -36);
+    temp += QString::number(elf_header->e_shoff);
     temp += "\n";
-    temp += "Flags:";
-    temp += QString::number(elf_header->e_flags, 16);
+    temp += QString("%1").arg("Flags:", -36);
+    temp += "0x"+QString::number(elf_header->e_flags, 16);
     temp += "\n";
-    temp += "Elf header size:";
+    temp += QString("%1").arg("Size of this header:", -36);
     temp += QString::number(elf_header->e_ehsize);
     temp += "\n";
-    temp += "Program header size:";
+    temp += QString("%1").arg("Size of program header:", -36);
     temp += QString::number(elf_header->e_phentsize);
     temp += "\n";
-    temp += "Program header number:";
+    temp += QString("%1").arg("Number of program header:", -36);
     temp += QString::number(elf_header->e_phnum);
     temp += "\n";
-    temp += "Section header size:";
+    temp += QString("%1").arg("Size of section header:", -36);
     temp += QString::number(elf_header->e_shentsize);
     temp += "\n";
-    temp += "Section header number:";
+    temp += QString("%1").arg("Number of section header:", -36);
     temp += QString::number(elf_header->e_shnum);
     temp += "\n";
-    temp += "Section header string table index:";
+    temp += QString("%1").arg("Section header string table index:", -36);
     temp += QString::number(elf_header->e_shstrndx);
 
     return temp;
@@ -255,64 +255,70 @@ QString ElfReader::showElfHeader()
 QString ElfReader::showProgramHeader()
 {
     QString temp = "";
-    temp += "Type\tFlag\tOffset\tVirtAddr\tPhysAddr\tFileSiz\tMemSiz\tAlign\n";
+    temp += QString("%1").arg("Type", -10);
+    temp += QString("%1 ").arg("Offset", -8);
+    temp += QString("%1 ").arg("VirtAddr", -10);
+    temp += QString("%1 ").arg("PhysAddr", -10);
+    temp += QString("%1 ").arg("FileSiz", -7);
+    temp += QString("%1 ").arg("MemSiz", -7);
+    temp += QString("%1 ").arg("Flg", -3);
+    temp += QString("%1").arg("Align", -6);
+    temp += "\n";
+
     for(int i=0;i<elf_header->e_phnum;i++)
     {
         switch (program_header[i].p_type) {
         case 1:
-            temp += "LOAD";
+            temp += QString("%1").arg("LOAD", -10);
             break;
         case 2:
-            temp += "DYNAMIC";
+            temp += QString("%1").arg("DYNAMIC", -10);
             break;
         case 3:
-            temp += "INTERP";
+            temp += QString("%1").arg("INTERP", -10);
             break;
         case 4:
-            temp += "NOTE";
+            temp += QString("%1").arg("NOTE", -10);
             break;
         case 5:
-            temp += "SHLIB";
+            temp += QString("%1").arg("SHLIB", -10);
             break;
         case 6:
-            temp += "PHDR";
+            temp += QString("%1").arg("PHDR", -10);
             break;
         case 0x70000000:
-            temp += "LOPROC";
+            temp += QString("%1").arg("LOPROC", -10);
             break;
         case 0x7fffffff:
-            temp += "HIPROC";
+            temp += QString("%1").arg("HIPROC", -10);
             break;
         default:
-            temp += "Unknown";
+            temp += QString("%1").arg("Unknown", -10);
             break;
         }
-        temp += "\t";
+
+        temp += QString("0x%1 ").arg(program_header[i].p_offset, 6, 16, QLatin1Char('0'));
+        temp += QString("0x%1 ").arg(program_header[i].p_vaddr, 8, 16, QLatin1Char('0'));
+        temp += QString("0x%1 ").arg(program_header[i].p_paddr, 8, 16, QLatin1Char('0'));
+        temp += QString("0x%1 ").arg(program_header[i].p_filesz, 5, 16, QLatin1Char('0'));
+        temp += QString("0x%1 ").arg(program_header[i].p_memsz, 5, 16, QLatin1Char('0'));
         switch (program_header[i].p_flags) {
         case 0x0ff00000:
-            temp += "MASKOS";
+            temp += "O   ";
+            //temp += "MASKOS";
             break;
         case 0xf0000000:
-            temp += "MASKPROC";
+            temp += "P   ";
+            //temp += "MASKPROC";
             break;
         default:
             temp += (program_header[i].p_flags & 4)?"R":" ";
             temp += (program_header[i].p_flags & 2)?"W":" ";
-            temp += (program_header[i].p_flags & 1)?"X":" ";
+            temp += (program_header[i].p_flags & 1)?"E":" ";
+            temp += " ";
             break;
         }
-        temp += "\t";
-        temp += QString("%1").arg(program_header[i].p_offset, 8, 16, QLatin1Char('0'));
-        temp += "\t";
-        temp += QString("%1").arg(program_header[i].p_vaddr, 8, 16, QLatin1Char('0'));
-        temp += "\t";
-        temp += QString("%1").arg(program_header[i].p_paddr, 8, 16, QLatin1Char('0'));
-        temp += "\t";
-        temp += QString("%1").arg(program_header[i].p_filesz, 8, 16, QLatin1Char('0'));
-        temp += "\t";
-        temp += QString("%1").arg(program_header[i].p_memsz, 8, 16, QLatin1Char('0'));
-        temp += "\t";
-        temp += QString("%1").arg(program_header[i].p_align, 8, 16, QLatin1Char('0'));
+        temp += QString("0x%1").arg(program_header[i].p_align, 4, 16, QLatin1Char('0'));
         temp += "\n";
     }
     return temp;
