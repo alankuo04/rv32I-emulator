@@ -327,116 +327,132 @@ QString ElfReader::showProgramHeader()
 QString ElfReader::showSectionHeader()
 {
     QString temp = "";
-    temp += "Name\tType\tAddr\tOffset\tSize\tES\tFlg\tLk\tInf\tAl\n";
+    temp += QString("%1 ").arg("[Nr]", -4);
+    temp += QString("%1").arg("Name", -18);
+    temp += QString("%1").arg("Type", -16);
+    temp += QString("%1 ").arg("Addr", -8);
+    temp += QString("%1 ").arg("Off", -6);
+    temp += QString("%1 ").arg("Size", -6);
+    temp += QString("%1 ").arg("ES", -2);
+    temp += QString("%1 ").arg("Flg", -3);
+    temp += QString("%1 ").arg("Lk", -2);
+    temp += QString("%1 ").arg("Inf", -3);
+    temp += QString("%1").arg("Al", -2);
+    temp += "\n";
+
     for(int i=0;i<elf_header->e_shnum;i++)
     {
+        temp += QString("[%1] ").arg(i, 2);
         std::stringstream ss(string_table+section_header[i].sh_name);
         std::string name;
         ss>>name;
-        temp += QString::fromStdString(name);
-        temp += "\t";
+        temp += QString("%1").arg(QString::fromStdString(name), -18);
         switch (section_header[i].sh_type) {
         case 0:
-            temp += "NULL";
+            temp += QString("%1").arg("NULL", -16);
             break;
         case 1:
-            temp += "PROGBITS";
+            temp += QString("%1").arg("PROGBITS", -16);
             break;
         case 2:
-            temp += "SYMTAB";
+            temp += QString("%1").arg("SYMTAB", -16);
             break;
         case 3:
-            temp += "STRTAB";
+            temp += QString("%1").arg("STRTAB", -16);
             break;
         case 4:
-            temp += "RELA";
+            temp += QString("%1").arg("RELA", -16);
             break;
         case 5:
-            temp += "HASH";
+            temp += QString("%1").arg("HASH", -16);
             break;
         case 6:
-            temp += "DYNAMIC";
+            temp += QString("%1").arg("DYNAMIC", -16);
             break;
         case 7:
-            temp += "NOTE";
+            temp += QString("%1").arg("NOTE", -16);
             break;
         case 8:
-            temp += "NOBITS";
+            temp += QString("%1").arg("NOBITS", -16);
             break;
         case 9:
-            temp += "REL";
+            temp += QString("%1").arg("REL", -16);
             break;
         case 10:
-            temp += "SHLIB";
+            temp += QString("%1").arg("SHLIB", -16);
             break;
         case 11:
-            temp += "DYNSYM";
+            temp += QString("%1").arg("DYNSYM", -16);
             break;
         case 14:
-            temp += "INIT_ARRAY";
+            temp += QString("%1").arg("INIT_ARRAY", -16);
             break;
         case 15:
-            temp += "FINI_ARRAY";
+            temp += QString("%1").arg("FINI_ARRAY", -16);
             break;
         case 16:
-            temp += "PREINIT_ARRAY";
+            temp += QString("%1").arg("PREINIT_ARRAY", -16);
             break;
         case 17:
-            temp += "GROUP";
+            temp += QString("%1").arg("GROUP", -16);
             break;
         case 18:
-            temp += "SYMTAB_SHNDX";
+            temp += QString("%1").arg("SYMTAB_SHNDX", -16);
             break;
         case 19:
-            temp += "NUM";
+            temp += QString("%1").arg("NUM", -16);
             break;
         case 0x60000000:
-            temp += "LOOS";
+            temp += QString("%1").arg("LOOS", -16);
             break;
         case 0x6ffffff5:
-            temp += "GNU_ATTRIBUTES";
+            temp += QString("%1").arg("GNU_ATTRIBUTES", -16);
             break;
         case 0x6ffffff6:
-            temp += "GNU_HASH";
+            temp += QString("%1").arg("GNU_HASH", -16);
             break;
         case 0x6ffffff7:
-            temp += "GNU_LIBLIST";
+            temp += QString("%1").arg("GNU_LIBLIST", -16);
             break;
         case 0x6ffffff8:
-            temp += "CHECKSUM";
+            temp += QString("%1").arg("CHECKSUM", -16);
             break;
         case 0x6ffffffa:
-            temp += "LOSUNW";
+            temp += QString("%1").arg("LOSUNW", -16);
             break;
         case 0x6ffffffb:
-            temp += "SUNW_COMDAT";
+            temp += QString("%1").arg("SUNW_COMDAT", -16);
             break;
         case 0x6ffffffc:
-            temp += "SUNW_syminfo";
+            temp += QString("%1").arg("SUNW_syminfo", -16);
             break;
         case 0x6ffffffd:
-            temp += "GNU_verdef";
+            temp += QString("%1").arg("GNU_verdef", -16);
             break;
         case 0x6ffffffe:
-            temp += "GNU_verneed";
+            temp += QString("%1").arg("GNU_verneed", -16);
             break;
         case 0x6fffffff:
-            temp += "GNU_versym";
+            temp += QString("%1").arg("GNU_versym", -16);
             break;
         case 0x70000000:
-            temp += "LOPROC";
+            temp += QString("%1").arg("LOPROC", -16);
             break;
         case 0x7fffffff:
-            temp += "HIPROC";
+            temp += QString("%1").arg("HIPROC", -16);
             break;
         case 0x80000000:
-            temp += "LOUSER";
+            temp += QString("%1").arg("LOUSER", -16);
             break;
         case 0x8fffffff:
-            temp += "HIUSER";
+            temp += QString("%1").arg("HIUSER", -16);
             break;
         }
-        temp += "\t";
+
+        temp += QString("%1 ").arg(section_header[i].sh_addr, 8, 16, QLatin1Char('0'));
+        temp += QString("%1 ").arg(section_header[i].sh_offset, 6, 16, QLatin1Char('0'));
+        temp += QString("%1 ").arg(section_header[i].sh_size, 6, 16, QLatin1Char('0'));
+        temp += QString("%1 ").arg(section_header[i].sh_entsize, 2, 16, QLatin1Char('0'));
         QString flags = "";
         flags += (section_header[i].sh_flags & (1<<0))?"W":"";
         flags += (section_header[i].sh_flags & (1<<1))?"A":"";
@@ -453,21 +469,11 @@ QString ElfReader::showSectionHeader()
         flags += (section_header[i].sh_flags & 0xf0000000)?"p":"";
         flags += (section_header[i].sh_flags & (1<<30))?"":"";
         flags += (section_header[i].sh_flags & (1U<<31))?"E":"";
-        temp += QString("%1").arg(flags, 3, QLatin1Char(' '));
-        temp += "\t";
-        temp += QString("%1").arg(section_header[i].sh_addr, 8, 16, QLatin1Char('0'));
-        temp += "\t";
-        temp += QString("%1").arg(section_header[i].sh_offset, 6, 16, QLatin1Char('0'));
-        temp += "\t";
-        temp += QString("%1").arg(section_header[i].sh_size, 6, 16, QLatin1Char('0'));
-        temp += "\t";
-        temp += QString("%1").arg(section_header[i].sh_link, 2, 16, QLatin1Char('0'));
-        temp += "\t";
-        temp += QString("%1").arg(section_header[i].sh_info, 2, 16, QLatin1Char('0'));
-        temp += "\t";
-        temp += QString("%1").arg(section_header[i].sh_addralign, 2, 16, QLatin1Char('0'));
-        temp += "\t";
-        temp += QString("%1").arg(section_header[i].sh_entsize  , 2, 16, QLatin1Char('0'));
+        temp += QString("%1 ").arg(flags, 3, QLatin1Char(' '));
+        temp += QString("%1 ").arg(section_header[i].sh_link, 2);
+        temp += QString("%1 ").arg(section_header[i].sh_info, 3);
+        temp += QString("%1").arg(section_header[i].sh_addralign, 2);
+        temp += "\n";
     }
     return temp;
 }
