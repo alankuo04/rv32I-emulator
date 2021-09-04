@@ -124,8 +124,9 @@ void MainWindow::on_actionLoad_File_triggered()
     else
     {
         ui->textBrowser->setPlainText("");
+        ui->Console->setFont(QFont("Consolas"));
         ui->Console->append("=========================");
-        ui->Console->append("\tNot an elf file.");
+        ui->Console->append(QString("%1").arg("Not an elf file.", 20));
         ui->Console->append("=========================");
     }
 
@@ -141,32 +142,36 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox *message = new QMessageBox;
-    QPushButton *elfHeaderButton = message->addButton("ELF Header", QMessageBox::ActionRole);
-    QPushButton *programHeaderButton = message->addButton("Program Header", QMessageBox::ActionRole);
-    QPushButton *sectionHeaderButton = message->addButton("Section Header", QMessageBox::ActionRole);
-    message->setStandardButtons(QMessageBox::Cancel);
-    message->setDefaultButton(QMessageBox::Cancel);
-    elfHeaderButton->disconnect();
-    programHeaderButton->disconnect();
-    sectionHeaderButton->disconnect();
+    if(emulator!=nullptr)
+    {
+        QMessageBox *message = new QMessageBox;
+        QPushButton *elfHeaderButton = message->addButton("ELF Header", QMessageBox::ActionRole);
+        QPushButton *programHeaderButton = message->addButton("Program Header", QMessageBox::ActionRole);
+        QPushButton *sectionHeaderButton = message->addButton("Section Header", QMessageBox::ActionRole);
+        message->setStandardButtons(QMessageBox::Cancel);
+        message->setDefaultButton(QMessageBox::Cancel);
+        elfHeaderButton->disconnect();
+        programHeaderButton->disconnect();
+        sectionHeaderButton->disconnect();
 
-    connect(elfHeaderButton, &QPushButton::pressed, [=](){message->setText(elfReader->showElfHeader());});
-    connect(programHeaderButton, &QPushButton::pressed, [=](){message->setText(elfReader->showProgramHeader());});
-    connect(sectionHeaderButton, &QPushButton::pressed, [=](){message->setText(elfReader->showSectionHeader());});
-    message->setFont(QFont("Consolas"));
-    message->exec();
+        connect(elfHeaderButton, &QPushButton::pressed, [=](){message->setText(elfReader->showElfHeader());});
+        connect(programHeaderButton, &QPushButton::pressed, [=](){message->setText(elfReader->showProgramHeader());});
+        connect(sectionHeaderButton, &QPushButton::pressed, [=](){message->setText(elfReader->showSectionHeader());});
+        message->setFont(QFont("Consolas"));
+        message->setStyleSheet("QLabel{min-width: 550px;}");
+        message->exec();
+    }
 }
 
 void MainWindow::on_actionVersion_triggered()
 {
-    QMessageBox message;
-    message.setIcon(QMessageBox::Information);
-    message.setText("RV32I Emulator");
-    message.setInformativeText("Version: 1.0");
-    message.setStandardButtons(QMessageBox::Ok);
-    message.setDefaultButton(QMessageBox::Ok);
-    message.exec();
+    QMessageBox *message = new QMessageBox;
+    message->setIcon(QMessageBox::Information);
+    message->setText("RV32I Emulator");
+    message->setInformativeText("Version: 1.1");
+    message->setStandardButtons(QMessageBox::Ok);
+    message->setDefaultButton(QMessageBox::Ok);
+    message->exec();
 }
 
 void MainWindow::on_actionReset_triggered()
