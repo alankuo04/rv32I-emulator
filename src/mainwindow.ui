@@ -140,22 +140,6 @@
       </widget>
      </widget>
     </item>
-    <item row="3" column="5" colspan="3">
-     <widget class="QTextBrowser" name="Console">
-      <property name="minimumSize">
-       <size>
-        <width>400</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>400</width>
-        <height>150</height>
-       </size>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="0" rowspan="4">
      <widget class="QPlainTextEdit" name="textBrowser">
       <property name="minimumSize">
@@ -229,6 +213,22 @@
       </property>
      </widget>
     </item>
+    <item row="3" column="5" colspan="3">
+     <widget class="QPlainTextEdit" name="Console">
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>400</width>
+        <height>150</height>
+       </size>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -237,7 +237,7 @@
      <x>0</x>
      <y>0</y>
      <width>802</width>
-     <height>24</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

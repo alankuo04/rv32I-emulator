@@ -53,6 +53,8 @@ private slots:
 
     void on_DeleteConsole_clicked();
 
+    void test();
+
 private:
     Ui::MainWindow *ui = nullptr;
     QSpinBox *spinbox = nullptr;

@@ -49,6 +49,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->MemoryList->verticalHeader()->hide();
     ui->textBrowser->setCenterOnScroll(true);
 
+    connect(ui->Console, SIGNAL(blockCountChanged(int)), this, SLOT(test()));
+    ui->Console->setReadOnly(true);
+}
+
+void MainWindow::test()
+{
+    ui->Console->setReadOnly(false);
+    qDebug()<<ui->Console->blockCount();
 }
 
 MainWindow::~MainWindow()
@@ -125,9 +133,9 @@ void MainWindow::on_actionLoad_File_triggered()
     {
         ui->textBrowser->setPlainText("");
         ui->Console->setFont(QFont("Consolas"));
-        ui->Console->append("=========================");
-        ui->Console->append(QString("%1").arg("Not an elf file.", 20));
-        ui->Console->append("=========================");
+        ui->Console->appendPlainText("=========================");
+        ui->Console->appendPlainText(QString("%1").arg("Not an elf file.", 20));
+        ui->Console->appendPlainText("=========================");
     }
 
 }
@@ -198,7 +206,7 @@ void MainWindow::on_actionStep_triggered()
         updateMemoryList();
         QString temp = emulator->nextInstruction();
         if(!temp.isEmpty())
-            ui->Console->append(temp);
+            ui->Console->appendPlainText(temp);
     }
 }
 
@@ -209,7 +217,7 @@ void MainWindow::on_actionEnd_triggered()
         while (!emulator->isEnd()) {
             QString temp = emulator->nextInstruction();
             if(!temp.isEmpty())
-                ui->Console->append(temp);
+                ui->Console->appendPlainText(temp);
         }
         highlightCurrentLine();
         updateRegisterList();
@@ -236,7 +244,7 @@ void MainWindow::on_actionRun_triggered()
             QString temp = emulator->nextInstruction();
 
             if(!temp.isEmpty())
-                ui->Console->append(temp);
+                ui->Console->appendPlainText(temp);
             QElapsedTimer timer;
             timer.start();
             while (timer.elapsed()<fileReader->getInterval()) {
