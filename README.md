@@ -40,6 +40,7 @@ The toolbar have five icons for controlling the RV32I emulator.
 |<img src="https://github.com/alankuo04/rv32I-emulator/blob/main/images/Run.png?raw=true" width=50px/>|Run|Start running the emulator with the specified interval setting by user.|
 |<img src="https://github.com/alankuo04/rv32I-emulator/blob/main/images/End.png?raw=true" width=50px/>|End|Execute the emulator without showing register and memory modified in each step, the ecall functions will still be printed to console. It will stop at an exit ecall.|
 |<img src="https://github.com/alankuo04/rv32I-emulator/blob/main/images/Stop.png?raw=true" width=50px/>|Stop|Stop running the emulator.|
+|<img src="https://github.com/alankuo04/rv32I-emulator/blob/main/images/Spinbox.png?raw=true" width=50px/>|SpinBox|A spinobox to set the interval of running the instruction.|
 
 ## ELF File Header View
 In the menu bar Help >> About, It will show the elf header, program header and section header by pressed each button.
