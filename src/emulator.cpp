@@ -205,7 +205,14 @@ QString Emulator::nextInstruction()
     case 115:   // 1110011 I type
         if(instruction.I.imm11_0 == 0){
             // opcode = "ECALL";
-            if(registerMap->temp_register[17]==64){
+
+            if(registerMap->temp_register[17]==63){ // read
+                if(registerMap->temp_register[10]==0){
+                    emit getStdin();
+                    end = true;
+                }
+            }
+            else if(registerMap->temp_register[17]==64){ // write
                 if(registerMap->temp_register[10]==1){
                     for(int i=0;i<registerMap->temp_register[12];i++){
                         str.append(*((char*)(memoryMap->memory)+(registerMap->temp_register[11]+i)));
@@ -214,7 +221,7 @@ QString Emulator::nextInstruction()
                 }
                 registerMap->temp_register[10]=registerMap->temp_register[12];
             }
-            else if(registerMap->temp_register[17]==93){
+            else if(registerMap->temp_register[17]==93){ // exit with code
                 end = true;
                 str = QString("Program exited with code: %1\n").arg(registerMap->temp_register[10]);
             }
@@ -332,6 +339,12 @@ QString Emulator::nextInstruction()
     }
     //qDebug()<<QString::number(pc, 16);
     return str;
+}
+
+void Emulator::setStdin(QString str)
+{
+    qDebug()<<str;
+    end = false;
 }
 
 RegisterMapModel* Emulator::getRegisterMapModel()

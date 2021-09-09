@@ -6,8 +6,9 @@
 #include "memorymapmodel.h"
 #include "registermapmodel.h"
 
-class Emulator
+class Emulator : public QObject
 {
+    Q_OBJECT
 public:
     Emulator(QString filePath);
     QString nextInstruction();
@@ -18,6 +19,12 @@ public:
     int getPC();
     int getEntry();
     bool isEnd();
+
+public slots:
+    void setStdin(QString);
+
+signals:
+    void getStdin();
 
 private:
     RegisterMapModel *registerMap;
