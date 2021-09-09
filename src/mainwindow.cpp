@@ -55,8 +55,19 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::test()
 {
+    if(!ui->Console->isReadOnly()){
+        qDebug()<<ui->Console->toPlainText().lastIndexOf(currentConsoleText);
+        qDebug()<<ui->Console->toPlainText().right(ui->Console->toPlainText().lastIndexOf(currentConsoleText));
+        emit setStdin(ui->Console->toPlainText().right(ui->Console->toPlainText().length()-ui->Console->toPlainText().indexOf(currentConsoleText)));
+        ui->Console->setReadOnly(true);
+    }
+}
+
+void MainWindow::test2()
+{
     ui->Console->setReadOnly(false);
-    qDebug()<<ui->Console->blockCount();
+    currentConsoleText = ui->Console->toPlainText();
+    qDebug()<<"test2";
 }
 
 MainWindow::~MainWindow()
@@ -128,6 +139,8 @@ void MainWindow::on_actionLoad_File_triggered()
         ui->MemoryList->setColumnWidth(5, 50);
         //qDebug()<<sectionMap->keys();
         //qDebug()<<sectionMap->values();
+        connect(emulator, SIGNAL(getStdin()), this, SLOT(test2()));
+        connect(this, SIGNAL(setStdin(QString)), emulator, SLOT(setStdin(QString)));
     }
     else
     {
