@@ -11,6 +11,7 @@ class Emulator : public QObject
     Q_OBJECT
 public:
     Emulator(QString filePath);
+    ~Emulator();
     QString nextInstruction();
     RegisterMapModel* getRegisterMapModel();
     MemoryMapModel* getMemoryMapModel();
@@ -19,6 +20,9 @@ public:
     int getPC();
     int getEntry();
     bool isEnd();
+    void setEnd(bool end){
+        this->end = end;
+    }
 
 public slots:
     void setStdin(QString);

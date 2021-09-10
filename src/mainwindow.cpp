@@ -56,9 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::test()
 {
     if(!ui->Console->isReadOnly()){
-        qDebug()<<ui->Console->toPlainText().lastIndexOf(currentConsoleText);
-        qDebug()<<ui->Console->toPlainText().right(ui->Console->toPlainText().lastIndexOf(currentConsoleText));
-        emit setStdin(ui->Console->toPlainText().right(ui->Console->toPlainText().length()-ui->Console->toPlainText().indexOf(currentConsoleText)));
+        emit setStdin(ui->Console->toPlainText().mid(ui->Console->toPlainText().indexOf(currentConsoleText)+currentConsoleText.length()));
         ui->Console->setReadOnly(true);
     }
 }
@@ -67,7 +65,7 @@ void MainWindow::test2()
 {
     ui->Console->setReadOnly(false);
     currentConsoleText = ui->Console->toPlainText();
-    qDebug()<<"test2";
+    qDebug()<<"test2:"<<currentConsoleText;
 }
 
 MainWindow::~MainWindow()
@@ -220,6 +218,7 @@ void MainWindow::on_actionStep_triggered()
         QString temp = emulator->nextInstruction();
         if(!temp.isEmpty())
             ui->Console->appendPlainText(temp);
+        emulator->setEnd(false);
     }
 }
 

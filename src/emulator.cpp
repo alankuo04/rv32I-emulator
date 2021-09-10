@@ -38,6 +38,12 @@ Emulator::Emulator(QString filePath)
     }
 }
 
+Emulator::~Emulator()
+{
+    delete registerMap;
+    delete memoryMap;
+}
+
 QString Emulator::nextInstruction()
 {
     int signedbit;
@@ -205,8 +211,13 @@ QString Emulator::nextInstruction()
     case 115:   // 1110011 I type
         if(instruction.I.imm11_0 == 0){
             // opcode = "ECALL";
+            if(registerMap->temp_register[17]==57){ // close
 
-            if(registerMap->temp_register[17]==63){ // read
+            }
+            else if(registerMap->temp_register[17]==62){ // lseek
+
+            }
+            else if(registerMap->temp_register[17]==63){ // read
                 if(registerMap->temp_register[10]==0){
                     emit getStdin();
                     end = true;
@@ -221,10 +232,17 @@ QString Emulator::nextInstruction()
                 }
                 registerMap->temp_register[10]=registerMap->temp_register[12];
             }
+            else if(registerMap->temp_register[17]==80){ // fstat
+                registerMap->temp_register[10] = 0;
+            }
             else if(registerMap->temp_register[17]==93){ // exit with code
                 end = true;
                 str = QString("Program exited with code: %1\n").arg(registerMap->temp_register[10]);
             }
+            else if(registerMap->temp_register[17]==214){ // brk
+                registerMap->temp_register[10] = 0;
+            }
+            end = true;
         }
         else
         {
@@ -343,7 +361,17 @@ QString Emulator::nextInstruction()
 
 void Emulator::setStdin(QString str)
 {
-    qDebug()<<str;
+    qDebug()<<str<<" "<<str.length();
+    qDebug()<<registerMap->temp_register[10]<<" "<<registerMap->temp_register[11]<<" "<<registerMap->temp_register[12]<<" "<<registerMap->temp_register[17];
+    if(registerMap->temp_register[17]==63){
+        for(int i=0;i<registerMap->temp_register[12] && i<str.length();i++){
+            qDebug()<<registerMap->temp_register[11]+i<<" "<<str.at(i).toLatin1();
+            uint8_t byte = str.at(i).toLatin1();
+            memcpy((uint8_t*)(memoryMap->memory)+(registerMap->temp_register[11]+i)*4/4, &byte, sizeof(uint8_t));
+            //memoryMap->memory[registerMap->temp_register[11]+i] = str.at(i).toLatin1();
+        }
+        registerMap->temp_register[10] = str.length();
+    }
     end = false;
 }
 
