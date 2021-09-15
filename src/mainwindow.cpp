@@ -58,12 +58,14 @@ void MainWindow::test()
     if(!ui->Console->isReadOnly()){
         emit setStdin(ui->Console->toPlainText().mid(ui->Console->toPlainText().indexOf(currentConsoleText)+currentConsoleText.length()));
         ui->Console->setReadOnly(true);
+        ui->DeleteConsole->setEnabled(true);
     }
 }
 
 void MainWindow::test2()
 {
     ui->Console->setReadOnly(false);
+    ui->DeleteConsole->setEnabled(false);
     currentConsoleText = ui->Console->toPlainText();
     qDebug()<<"test2:"<<currentConsoleText;
 }
