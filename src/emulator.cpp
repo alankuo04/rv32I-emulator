@@ -73,7 +73,7 @@ QString Emulator::nextInstruction()
                 break;
             case 3:
                 // opcode = "SLTU";
-                registerMap->temp_register[instruction.R.rd] = (uint32_t)(registerMap->temp_register[instruction.R.rs1])<(uint32_t)(registerMap->temp_register[instruction.R.rs2])?1:0;
+                registerMap->temp_register[instruction.R.rd] = ((uint32_t)(registerMap->temp_register[instruction.R.rs1]))<((uint32_t)(registerMap->temp_register[instruction.R.rs2]))?1:0;
                 break;
             case 4:
                 // opcode = "XOR";
@@ -81,7 +81,7 @@ QString Emulator::nextInstruction()
                 break;
             case 5:
                 // opcode = "SRL";
-                registerMap->temp_register[instruction.R.rd] = ((uint32_t)(registerMap->temp_register[instruction.R.rs1])>>(registerMap->temp_register[instruction.R.rs2]&31));
+                registerMap->temp_register[instruction.R.rd] = (((uint32_t)(registerMap->temp_register[instruction.R.rs1]))>>(registerMap->temp_register[instruction.R.rs2]&31));
                 break;
             case 6:
                 // opcode = "OR";
@@ -102,7 +102,7 @@ QString Emulator::nextInstruction()
                 break;
             case 6:
                 // opcode = "SRA";
-                registerMap->temp_register[instruction.R.rd] = (registerMap->temp_register[instruction.R.rs1]>>(registerMap->temp_register[instruction.R.rs2]&31));
+                registerMap->temp_register[instruction.R.rd] = ((registerMap->temp_register[instruction.R.rs1])>>(registerMap->temp_register[instruction.R.rs2]&31));
                 break;
             default:
                 break;
@@ -189,11 +189,11 @@ QString Emulator::nextInstruction()
         case 5:
             if((instruction.I.imm11_0>>5) == 0){
                 // opcode = "SRLI";
-                registerMap->temp_register[instruction.I.rd] = (registerMap->temp_register[instruction.I.rs1]>>(imm&31));
+                registerMap->temp_register[instruction.I.rd] = ((uint32_t)(registerMap->temp_register[instruction.I.rs1])>>(imm&31));
             }
             else{
                 // opcode = "SRAI";
-                registerMap->temp_register[instruction.I.rd] = (int)((uint32_t)(registerMap->temp_register[instruction.I.rs1])>>(imm&31));
+                registerMap->temp_register[instruction.I.rd] = ((registerMap->temp_register[instruction.I.rs1])>>(imm&31));
             }
             break;
         default:
@@ -240,7 +240,7 @@ QString Emulator::nextInstruction()
                 str = QString("Program exited with code: %1\n").arg(registerMap->temp_register[10]);
             }
             else if(registerMap->temp_register[17]==214){ // brk
-                registerMap->temp_register[10] = 0;
+                //registerMap->temp_register[10] = 0;
             }
             end = true;
         }
@@ -356,6 +356,8 @@ QString Emulator::nextInstruction()
         break;
     }
     //qDebug()<<QString::number(pc, 16);
+    if(pc == 0x203f8)
+        end = true;
     return str;
 }
 
@@ -370,7 +372,7 @@ void Emulator::setStdin(QString str)
             memcpy((uint8_t*)(memoryMap->memory)+(registerMap->temp_register[11]+i)*4/4, &byte, sizeof(uint8_t));
             //memoryMap->memory[registerMap->temp_register[11]+i] = str.at(i).toLatin1();
         }
-        registerMap->temp_register[10] = str.length();
+        registerMap->temp_register[10] = str.length()+1;
     }
     end = false;
 }
