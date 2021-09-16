@@ -242,7 +242,6 @@ QString Emulator::nextInstruction()
             else if(registerMap->temp_register[17]==214){ // brk
                 //registerMap->temp_register[10] = 0;
             }
-            end = true;
         }
         else
         {
@@ -356,23 +355,18 @@ QString Emulator::nextInstruction()
         break;
     }
     //qDebug()<<QString::number(pc, 16);
-    if(pc == 0x203f8)
-        end = true;
     return str;
 }
 
 void Emulator::setStdin(QString str)
 {
-    qDebug()<<str<<" "<<str.length();
-    qDebug()<<registerMap->temp_register[10]<<" "<<registerMap->temp_register[11]<<" "<<registerMap->temp_register[12]<<" "<<registerMap->temp_register[17];
     if(registerMap->temp_register[17]==63){
         for(int i=0;i<registerMap->temp_register[12] && i<str.length();i++){
-            qDebug()<<registerMap->temp_register[11]+i<<" "<<str.at(i).toLatin1();
             uint8_t byte = str.at(i).toLatin1();
             memcpy((uint8_t*)(memoryMap->memory)+(registerMap->temp_register[11]+i)*4/4, &byte, sizeof(uint8_t));
             //memoryMap->memory[registerMap->temp_register[11]+i] = str.at(i).toLatin1();
         }
-        registerMap->temp_register[10] = str.length()+1;
+        registerMap->temp_register[10] = str.length();
     }
     end = false;
 }
