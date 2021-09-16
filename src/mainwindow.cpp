@@ -51,6 +51,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->Console, SIGNAL(blockCountChanged(int)), this, SLOT(test()));
     ui->Console->setReadOnly(true);
+
+    qDebug()<<"test:"<<(2147483648>>1);
+    qDebug()<<"test:"<<(((uint32_t)2147483648)>>1);
+    qDebug()<<"test:"<<(((int)2147483648)>>1);
 }
 
 void MainWindow::test()
