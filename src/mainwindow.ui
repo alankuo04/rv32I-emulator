@@ -228,7 +228,8 @@
        </size>
       </property>
       <property name="plainText">
-       <string>test: </string>
+       <string>test: 
+</string>
       </property>
      </widget>
     </item>

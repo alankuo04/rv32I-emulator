@@ -49,29 +49,29 @@ MainWindow::MainWindow(QWidget *parent)
     ui->MemoryList->verticalHeader()->hide();
     ui->textBrowser->setCenterOnScroll(true);
 
-    connect(ui->Console, SIGNAL(blockCountChanged(int)), this, SLOT(test()));
+    connect(ui->Console, SIGNAL(blockCountChanged(int)), this, SLOT(getBlockChanged(int)));
     ui->Console->setReadOnly(true);
-
-    qDebug()<<"test:"<<(2147483648>>1);
-    qDebug()<<"test:"<<(((uint32_t)2147483648)>>1);
-    qDebug()<<"test:"<<(((int)2147483648)>>1);
+    currentBlockCount = ui->Console->blockCount();
 }
 
-void MainWindow::test()
+void MainWindow::getBlockChanged(int block)
 {
-    if(!ui->Console->isReadOnly()){
+    if(!ui->Console->isReadOnly() && block > currentBlockCount){
         emit setStdin(ui->Console->toPlainText().mid(ui->Console->toPlainText().indexOf(currentConsoleText)+currentConsoleText.length()));
         ui->Console->setReadOnly(true);
         ui->DeleteConsole->setEnabled(true);
     }
+    else{
+        currentConsoleText = ui->Console->toPlainText();
+    }
+    currentBlockCount = ui->Console->blockCount();
 }
 
-void MainWindow::test2()
+void MainWindow::getStdin()
 {
     ui->Console->setReadOnly(false);
     ui->DeleteConsole->setEnabled(false);
     currentConsoleText = ui->Console->toPlainText();
-    qDebug()<<"test2:"<<currentConsoleText;
 }
 
 MainWindow::~MainWindow()
@@ -143,7 +143,7 @@ void MainWindow::on_actionLoad_File_triggered()
         ui->MemoryList->setColumnWidth(5, 50);
         //qDebug()<<sectionMap->keys();
         //qDebug()<<sectionMap->values();
-        connect(emulator, SIGNAL(getStdin()), this, SLOT(test2()));
+        connect(emulator, SIGNAL(getStdin()), this, SLOT(getStdin()));
         connect(this, SIGNAL(setStdin(QString)), emulator, SLOT(setStdin(QString)));
     }
     else
@@ -211,6 +211,9 @@ void MainWindow::on_actionReset_triggered()
         highlightCurrentLine();
         updateRegisterList();
         updateMemoryList();
+        connect(emulator, SIGNAL(getStdin()), this, SLOT(getStdin()));
+        connect(this, SIGNAL(setStdin(QString)), emulator, SLOT(setStdin(QString)));
+
     }
 }
 

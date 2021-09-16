@@ -39,8 +39,8 @@ private slots:
     void gotoMemoryByRegister();
     void gotoMemoryBySection();
     void on_DeleteConsole_clicked();
-    void test();
-    void test2();
+    void getBlockChanged(int);
+    void getStdin();
 
 signals:
     void setStdin(QString);
@@ -56,5 +56,6 @@ private:
     QMap<QString, int> *sectionMap = nullptr;
 
     QString currentConsoleText;
+    int currentBlockCount;
 };
 #endif // MAINWINDOW_H
