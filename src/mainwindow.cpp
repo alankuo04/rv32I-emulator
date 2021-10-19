@@ -193,7 +193,7 @@ void MainWindow::on_actionVersion_triggered()
     QMessageBox *message = new QMessageBox;
     message->setIcon(QMessageBox::Information);
     message->setText("RV32I Emulator");
-    message->setInformativeText("Version: 1.1");
+    message->setInformativeText("Version: 2.0");
     message->setStandardButtons(QMessageBox::Ok);
     message->setDefaultButton(QMessageBox::Ok);
     message->exec();
