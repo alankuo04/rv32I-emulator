@@ -48,4 +48,30 @@ In the menu bar Help >> About, It will show the elf header, program header and s
 <center><img src="https://github.com/alankuo04/rv32I-emulator/blob/main/images/header.png?raw=true"/></center>
 
 ## Downloading
+### Windows
 There is a prebuilt binary for Windows in [Releases](https://github.com/alankuo04/rv32I-emulator/releases), or just downloading the source code and build it in Qt Creator.
+### Linux
+There are the steps for compiling Qt project on Linux.
+
+First, installing the qmake.
+```
+sudo apt-get install qt5-default qt5-doc-html qt5-qmake qt5-doc qt5-image-formats-plugins
+```
+Then, cloning the rv32I-emulator repository.
+```
+git clone https://github.com/alankuo04/rv32I-emulator.git
+```
+Next, change the directory to src, and run qmake.
+```
+cd src/
+qmake
+```
+The Makefile will generate by qmake, then run make to compile the project.
+```
+make
+```
+Finally, you get the executable file RV32I_emulator, and you can run it on your pc.
+```
+./RV32I_emulator
+```
+However, some icons are in wrong position, it will be fixed  in the future.
